@@ -194,7 +194,7 @@ export default function Home() {
               </span>
             </h1>
 
-            <p className="text-xs text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed font-bold uppercase tracking-[0.2em]">
+            <p className="text-xs text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed font-bold tracking-[0.2em]">
               Stop chasing leads. Stop missing calls. Stop guessing.
               We install the complete AI infrastructure that captures, nurtures, and closes deals on autopilot.
             </p>
