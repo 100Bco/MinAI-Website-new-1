@@ -500,9 +500,9 @@ export default function Home() {
                 image: "/industry-4.png"
               }
             ].map((industry, i) => (
-              <div key={i} className="p-8 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all text-center">
-                <div className="flex items-center justify-center mb-6">
-                  <img src={industry.image} alt={industry.title} className="w-40 h-40 object-contain" />
+              <div key={i} className="p-8 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all text-center flex flex-col items-center">
+                <div className="h-44 flex items-center justify-center mb-6">
+                  <img src={industry.image} alt={industry.title} className="max-h-44 w-auto object-contain" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">{industry.title}</h3>
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">{industry.sub}</p>
