@@ -17,14 +17,19 @@ import googleLogo from "@assets/Google_2015_logo.svg.png";
 import metaLogo from "@assets/Meta_Platforms_Inc._logo.svg.png";
 import wordpressLogo from "@assets/WordPress_blue_logo.svg.png";
 
+// --- 1. Component FloatingElement đã được cập nhật ---
 const FloatingElement = ({ icon: Icon, x, y, depth, delay }: any) => {
   const { scrollY } = useScroll();
+  
+  // Hiệu ứng cuộn: Icon di chuyển lên trên nhanh hơn text để tạo chiều sâu
   const scrollYTransform = useTransform(scrollY, [0, 1000], [0, -200 * depth]);
 
-  const [drifting] = useState(() => ({
-    x: (Math.random() - 0.5) * 150,
-    y: (Math.random() - 0.5) * 150,
-    rotate: (Math.random() - 0.5) * 90
+  // Sử dụng useState để giữ giá trị ngẫu nhiên ổn định (tránh lỗi Hydration)
+  const [config] = useState(() => ({
+    randomX: (Math.random() - 0.5) * 250, // Di chuyển ngang ngẫu nhiên (Range lớn hơn)
+    randomY: (Math.random() - 0.5) * 250, // Di chuyển dọc ngẫu nhiên
+    randomRotate: (Math.random() - 0.5) * 360, // Xoay ngẫu nhiên 360 độ
+    duration: 5 + Math.random() * 5 // Tốc độ nhanh hơn (5s - 10s)
   }));
 
   return (
@@ -39,26 +44,26 @@ const FloatingElement = ({ icon: Icon, x, y, depth, delay }: any) => {
     >
       <motion.div
         animate={{
-          x: [0, drifting.x, 0],
-          y: [0, drifting.y, 0],
-          rotate: [0, drifting.rotate, 0],
+          x: [0, config.randomX, 0],
+          y: [0, config.randomY, 0],
+          rotate: [0, config.randomRotate, 0],
         }}
         transition={{
-          duration: 15 + Math.random() * 10,
+          duration: config.duration,
           repeat: Infinity,
           repeatType: "reverse",
           ease: "easeInOut",
           delay: delay,
         }}
         style={{
-          opacity: 0.05 + (depth * 0.15),
-          scale: 0.6 + (depth * 0.4),
-          filter: `blur(${(1 - depth) * 2}px)`,
+          opacity: 0.1 + (depth * 0.2), // Độ mờ: 10% - 30%
+          scale: 0.5 + (depth * 0.5),   // Kích thước: 50% - 100%
+          filter: `blur(${(1 - depth) * 2}px)`, // Blur nhẹ cho vật thể ở xa
         }}
       >
         <Icon
-          strokeWidth={1.2}
-          className="w-10 h-10 text-slate-300"
+          strokeWidth={1.5}
+          className="w-6 h-6 text-slate-400" // Icon nhỏ hơn và màu xám đậm hơn chút
         />
       </motion.div>
     </motion.div>
@@ -96,6 +101,7 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
 export default function Home() {
   const { openDemoModal } = useModal();
 
+  // Danh sách icon giữ nguyên vị trí layout cũ nhưng sẽ áp dụng hiệu ứng mới
   const floatingIcons = [
     { icon: Phone, x: '10%', y: '15%', depth: 0.8, delay: 0 },
     { icon: Mail, x: '85%', y: '20%', depth: 0.6, delay: 1 },
@@ -113,10 +119,10 @@ export default function Home() {
       <section className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-16 overflow-hidden bg-white">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-white to-white pointer-events-none" />
 
-        {/* Floating Icons Background */}
+        {/* --- 2. Floating Icons Background (Updated) --- */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           {floatingIcons.map((item, i) => {
-            const Icon = item.icon || Zap; // Fallback if icon is missing
+            const Icon = item.icon || Zap; // Fallback
             return (
               <FloatingElement
                 key={i}
