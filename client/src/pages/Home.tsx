@@ -490,12 +490,12 @@ export default function Home() {
                 image: "/industry-2.png"
               },
               {
-                title: "Brokerages",
+                title: "Agencies &\nBrokerages",
                 sub: "Real Estate, Mortgage, Insurance",
                 image: "/industry-3.png"
               },
               {
-                title: "Personal Injury Law",
+                title: "Personal Injury\nLaw Firms",
                 sub: "MVA, Slip & Fall, Workers Comp",
                 image: "/industry-4.png"
               }
@@ -504,7 +504,7 @@ export default function Home() {
                 <div className="h-44 flex items-center justify-center mb-6">
                   <img src={industry.image} alt={industry.title} className="max-h-44 w-auto object-contain" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">{industry.title}</h3>
+                <h3 className="text-xl font-bold text-slate-900 mb-2 whitespace-pre-line">{industry.title}</h3>
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">{industry.sub}</p>
               </div>
             ))}
