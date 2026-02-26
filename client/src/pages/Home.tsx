@@ -17,20 +17,27 @@ import googleLogo from "@assets/Google_2015_logo.svg.png";
 import metaLogo from "@assets/Meta_Platforms_Inc._logo.svg.png";
 import wordpressLogo from "@assets/WordPress_blue_logo.svg.png";
 
-// --- 1. Component FloatingElement đã được cập nhật ---
-const FloatingElement = ({ icon: Icon, x, y, depth, delay }: any) => {
+// --- 1. Component FloatingElement: Bouncing icons nền ---
+const FloatingElement = ({ icon: Icon, x, y, depth, delay, size = "md" }: any) => {
   const { scrollY } = useScroll();
-  
-  // Hiệu ứng cuộn: Icon di chuyển lên trên nhanh hơn text để tạo chiều sâu
+
+  // Parallax scrolling: icon gần (depth cao) di chuyển nhiều hơn
   const scrollYTransform = useTransform(scrollY, [0, 1000], [0, -200 * depth]);
 
-  // Sử dụng useState để giữ giá trị ngẫu nhiên ổn định (tránh lỗi Hydration)
+  // Giữ giá trị ngẫu nhiên ổn định qua re-render
   const [config] = useState(() => ({
-    randomX: (Math.random() - 0.5) * 300, // Di chuyển ngang ngẫu nhiên (Range lớn hơn)
-    randomY: (Math.random() - 0.5) * 300, // Di chuyển dọc ngẫu nhiên
-    randomRotate: (Math.random() - 0.5) * 420, // Xoay ngẫu nhiên mạnh hơn
-    duration: 4 + Math.random() * 5 // Tốc độ nhanh hơn (4s - 9s)
+    // Quỹ đạo di chuyển tự do
+    randomX: (Math.random() - 0.5) * 180,
+    randomY: (Math.random() - 0.5) * 180,
+    randomRotate: (Math.random() - 0.5) * 60,
+    duration: 6 + Math.random() * 6, // 6s - 12s: chậm hơn, mượt hơn
+    // Bouncing: nhảy lên xuống nhẹ
+    bounceY: 8 + Math.random() * 12, // Bounce 8-20px
+    bounceDuration: 2 + Math.random() * 1.5, // 2s - 3.5s cho 1 nhịp bounce
   }));
+
+  // Size classes dựa trên prop
+  const sizeClass = size === "lg" ? "w-10 h-10" : size === "sm" ? "w-5 h-5" : "w-7 h-7";
 
   return (
     <motion.div
@@ -42,6 +49,7 @@ const FloatingElement = ({ icon: Icon, x, y, depth, delay }: any) => {
       }}
       className="absolute pointer-events-none"
     >
+      {/* Layer 1: Drifting chậm (quỹ đạo lớn) */}
       <motion.div
         animate={{
           x: [0, config.randomX, 0],
@@ -55,16 +63,29 @@ const FloatingElement = ({ icon: Icon, x, y, depth, delay }: any) => {
           ease: "easeInOut",
           delay: delay,
         }}
-        style={{
-          opacity: 0.15 + (depth * 0.22), // Độ mờ: 15% - 37% (tăng ~10%)
-          scale: 0.55 + (depth * 0.55),   // Kích thước: 55% - 110% (tăng ~10%)
-          filter: `blur(${(1 - depth) * 1.5}px)`, // Blur nhẹ hơn cho rõ hơn
-        }}
       >
-        <Icon
-          strokeWidth={1.5}
-          className="w-7 h-7 text-slate-400" // Icon lớn hơn 1 chút để rõ hơn
-        />
+        {/* Layer 2: Bouncing nhanh (nảy lên xuống) */}
+        <motion.div
+          animate={{
+            y: [0, -config.bounceY, 0],
+          }}
+          transition={{
+            duration: config.bounceDuration,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut",
+          }}
+          style={{
+            opacity: 0.18 + (depth * 0.25), // 18% - 43%
+            scale: 0.6 + (depth * 0.5),
+            filter: `blur(${(1 - depth) * 1.2}px)`,
+          }}
+        >
+          <Icon
+            strokeWidth={1.5}
+            className={`${sizeClass} text-blue-400/70`}
+          />
+        </motion.div>
       </motion.div>
     </motion.div>
   );
@@ -101,21 +122,40 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
 export default function Home() {
   const { openDemoModal } = useModal();
 
-  // Danh sách icon giữ nguyên vị trí layout cũ nhưng sẽ áp dụng hiệu ứng mới
+  // Danh sách icon trải đều khắp hero, nhiều hơn để tạo density như screenshot
   const floatingIcons = [
-    { icon: Phone, x: '10%', y: '15%', depth: 0.8, delay: 0 },
-    { icon: Mail, x: '85%', y: '20%', depth: 0.6, delay: 1 },
-    { icon: BarChart, x: '12%', y: '55%', depth: 0.9, delay: 2 },
-    { icon: Zap, x: '82%', y: '65%', depth: 0.7, delay: 1.5 },
-    { icon: Shield, x: '78%', y: '35%', depth: 0.5, delay: 3 },
-    { icon: Clock, x: '22%', y: '30%', depth: 0.4, delay: 0.5 },
-    { icon: MessageSquare, x: '5%', y: '40%', depth: 0.7, delay: 2.5 },
-    { icon: Sparkles, x: '90%', y: '50%', depth: 0.8, delay: 1.2 },
-    { icon: Star, x: '50%', y: '10%', depth: 0.6, delay: 0.8 },
-    { icon: Rocket, x: '30%', y: '70%', depth: 0.5, delay: 1.8 },
-    { icon: Settings, x: '70%', y: '75%', depth: 0.8, delay: 0.3 },
-    { icon: MapPin, x: '95%', y: '40%', depth: 0.4, delay: 2.2 },
-    { icon: LayoutDashboard, x: '40%', y: '80%', depth: 0.7, delay: 3.2 },
+    // Hàng trên (y: 5-20%)
+    { icon: Phone, x: '8%', y: '8%', depth: 0.8, delay: 0, size: 'lg' },
+    { icon: Star, x: '25%', y: '5%', depth: 0.5, delay: 0.8, size: 'sm' },
+    { icon: Mail, x: '42%', y: '12%', depth: 0.6, delay: 1.4, size: 'md' },
+    { icon: Sparkles, x: '60%', y: '6%', depth: 0.7, delay: 0.3, size: 'lg' },
+    { icon: Shield, x: '78%', y: '10%', depth: 0.5, delay: 2.1, size: 'md' },
+    { icon: Zap, x: '93%', y: '8%', depth: 0.8, delay: 1, size: 'sm' },
+
+    // Hàng trên-giữa (y: 20-40%)
+    { icon: Clock, x: '5%', y: '28%', depth: 0.4, delay: 0.5, size: 'md' },
+    { icon: BarChart, x: '18%', y: '35%', depth: 0.9, delay: 2, size: 'lg' },
+    { icon: Rocket, x: '35%', y: '22%', depth: 0.6, delay: 1.8, size: 'sm' },
+    { icon: Settings, x: '65%', y: '25%', depth: 0.7, delay: 0.6, size: 'md' },
+    { icon: MessageSquare, x: '82%', y: '32%', depth: 0.5, delay: 3, size: 'lg' },
+    { icon: Phone, x: '95%', y: '25%', depth: 0.8, delay: 1.5, size: 'sm' },
+
+    // Hàng giữa (y: 40-60%)
+    { icon: MapPin, x: '3%', y: '50%', depth: 0.7, delay: 2.5, size: 'lg' },
+    { icon: Zap, x: '15%', y: '45%', depth: 0.6, delay: 1.2, size: 'sm' },
+    { icon: Star, x: '30%', y: '55%', depth: 0.8, delay: 0.2, size: 'md' },
+    { icon: Mail, x: '70%', y: '48%', depth: 0.5, delay: 2.8, size: 'sm' },
+    { icon: Shield, x: '85%', y: '52%', depth: 0.9, delay: 0.9, size: 'lg' },
+    { icon: Sparkles, x: '96%', y: '45%', depth: 0.4, delay: 1.7, size: 'md' },
+
+    // Hàng dưới (y: 60-85%)
+    { icon: LayoutDashboard, x: '7%', y: '70%', depth: 0.7, delay: 3.2, size: 'md' },
+    { icon: Rocket, x: '22%', y: '65%', depth: 0.5, delay: 1.3, size: 'lg' },
+    { icon: Clock, x: '40%', y: '75%', depth: 0.8, delay: 0.4, size: 'sm' },
+    { icon: BarChart, x: '55%', y: '68%', depth: 0.6, delay: 2.4, size: 'md' },
+    { icon: Settings, x: '72%', y: '72%', depth: 0.8, delay: 0.7, size: 'lg' },
+    { icon: MessageSquare, x: '90%', y: '65%', depth: 0.5, delay: 1.9, size: 'sm' },
+    { icon: MapPin, x: '48%', y: '82%', depth: 0.7, delay: 2.6, size: 'md' },
   ];
 
   return (
@@ -126,19 +166,17 @@ export default function Home() {
 
         {/* --- 2. Floating Icons Background (Updated) --- */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-          {floatingIcons.map((item, i) => {
-            const Icon = item.icon || Zap; // Fallback
-            return (
+          {floatingIcons.map((item, i) => (
               <FloatingElement
                 key={i}
-                icon={Icon}
+                icon={item.icon}
                 x={item.x}
                 y={item.y}
                 depth={item.depth}
                 delay={item.delay}
+                size={item.size}
               />
-            );
-          })}
+            ))}
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
