@@ -26,10 +26,10 @@ const FloatingElement = ({ icon: Icon, x, y, depth, delay }: any) => {
 
   // Sử dụng useState để giữ giá trị ngẫu nhiên ổn định (tránh lỗi Hydration)
   const [config] = useState(() => ({
-    randomX: (Math.random() - 0.5) * 250, // Di chuyển ngang ngẫu nhiên (Range lớn hơn)
-    randomY: (Math.random() - 0.5) * 250, // Di chuyển dọc ngẫu nhiên
-    randomRotate: (Math.random() - 0.5) * 360, // Xoay ngẫu nhiên 360 độ
-    duration: 5 + Math.random() * 5 // Tốc độ nhanh hơn (5s - 10s)
+    randomX: (Math.random() - 0.5) * 300, // Di chuyển ngang ngẫu nhiên (Range lớn hơn)
+    randomY: (Math.random() - 0.5) * 300, // Di chuyển dọc ngẫu nhiên
+    randomRotate: (Math.random() - 0.5) * 420, // Xoay ngẫu nhiên mạnh hơn
+    duration: 4 + Math.random() * 5 // Tốc độ nhanh hơn (4s - 9s)
   }));
 
   return (
@@ -56,14 +56,14 @@ const FloatingElement = ({ icon: Icon, x, y, depth, delay }: any) => {
           delay: delay,
         }}
         style={{
-          opacity: 0.1 + (depth * 0.2), // Độ mờ: 10% - 30%
-          scale: 0.5 + (depth * 0.5),   // Kích thước: 50% - 100%
-          filter: `blur(${(1 - depth) * 2}px)`, // Blur nhẹ cho vật thể ở xa
+          opacity: 0.15 + (depth * 0.22), // Độ mờ: 15% - 37% (tăng ~10%)
+          scale: 0.55 + (depth * 0.55),   // Kích thước: 55% - 110% (tăng ~10%)
+          filter: `blur(${(1 - depth) * 1.5}px)`, // Blur nhẹ hơn cho rõ hơn
         }}
       >
         <Icon
           strokeWidth={1.5}
-          className="w-6 h-6 text-slate-400" // Icon nhỏ hơn và màu xám đậm hơn chút
+          className="w-7 h-7 text-slate-400" // Icon lớn hơn 1 chút để rõ hơn
         />
       </motion.div>
     </motion.div>
@@ -111,6 +111,11 @@ export default function Home() {
     { icon: Clock, x: '22%', y: '30%', depth: 0.4, delay: 0.5 },
     { icon: MessageSquare, x: '5%', y: '40%', depth: 0.7, delay: 2.5 },
     { icon: Sparkles, x: '90%', y: '50%', depth: 0.8, delay: 1.2 },
+    { icon: Star, x: '50%', y: '10%', depth: 0.6, delay: 0.8 },
+    { icon: Rocket, x: '30%', y: '70%', depth: 0.5, delay: 1.8 },
+    { icon: Settings, x: '70%', y: '75%', depth: 0.8, delay: 0.3 },
+    { icon: MapPin, x: '95%', y: '40%', depth: 0.4, delay: 2.2 },
+    { icon: LayoutDashboard, x: '40%', y: '80%', depth: 0.7, delay: 3.2 },
   ];
 
   return (
