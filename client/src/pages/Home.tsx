@@ -3,8 +3,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import {
   ArrowRight, CheckCircle, Play, Star, Zap, Shield, Clock,
   BarChart, PhoneMissed, MessageSquare, LayoutDashboard,
-  MapPin, ChevronDown, ChevronUp, X, Wrench, Building2,
-  Briefcase, Scale, MonitorPlay, Settings, Rocket,
+  MapPin, ChevronDown, ChevronUp, X, MonitorPlay, Settings, Rocket,
   Phone, Mail, Sparkles
 } from "lucide-react";
 import { Link } from "wouter";
@@ -483,35 +482,30 @@ export default function Home() {
               {
                 title: "Local Service Contractors",
                 sub: "HVAC, Roofing, Plumbing, Solar",
-                quote: "Stop missing jobs because you were on a ladder.",
-                icon: Wrench
+                image: "/industry-1.png"
               },
               {
                 title: "Real Estate Developers",
                 sub: "Condos, Subdivisions, Commercial",
-                quote: "Move units faster without hiring a massive sales admin team.",
-                icon: Building2
+                image: "/industry-2.png"
               },
               {
                 title: "Brokerages",
                 sub: "Real Estate, Mortgage, Insurance",
-                quote: "Feed your agents appointments, not cold leads.",
-                icon: Briefcase
+                image: "/industry-3.png"
               },
               {
                 title: "Personal Injury Law",
                 sub: "MVA, Slip & Fall, Workers Comp",
-                quote: "Sign the case before the other firm even checks their voicemail.",
-                icon: Scale
+                image: "/industry-4.png"
               }
             ].map((industry, i) => (
-              <div key={i} className="p-8 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-6">
-                  <industry.icon className="w-6 h-6 text-blue-600" />
+              <div key={i} className="p-8 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all text-center">
+                <div className="flex items-center justify-center mb-6">
+                  <img src={industry.image} alt={industry.title} className="w-40 h-40 object-contain" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">{industry.title}</h3>
-                <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-4">{industry.sub}</p>
-                <p className="text-slate-600 italic font-medium">"{industry.quote}"</p>
+                <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">{industry.sub}</p>
               </div>
             ))}
           </div>
