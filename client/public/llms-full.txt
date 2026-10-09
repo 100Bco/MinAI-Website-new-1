@@ -249,7 +249,7 @@ One platform. One price. Unlimited growth. Replace your entire tech stack for le
 - Wix / WordPress Hosting ($30/mo) — INCLUDED
 - **Total Value: ~$900/mo** → MinAI: One Simple Price
 
-### The Essentials — $297/month
+### The Essentials
 For solopreneurs or those just starting. No setup fee.
 - 2-Way SMS & Email: Unified Inbox
 - Missed Call Text-Back
@@ -258,7 +258,7 @@ For solopreneurs or those just starting. No setup fee.
 - Mobile App
 - Payments: Accept CC via text
 
-### The Growth Machine — $997/month (Recommended)
+### The Growth Machine (Recommended)
 Complete business infrastructure. Setup fee applies.
 Everything in Essentials, PLUS:
 - Full Website Builder

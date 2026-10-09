@@ -64,7 +64,7 @@ export default function Pricing() {
             <div className="bg-white p-8 rounded-3xl h-full flex flex-col border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold text-slate-900 mb-2">THE ESSENTIALS</h3>
               <p className="text-sm text-slate-600 mb-6 font-medium">For solopreneurs or those just starting.</p>
-              <div className="text-4xl font-black text-slate-900 mb-2">$297 <span className="text-base text-slate-400 font-normal">/ month</span></div>
+              <div className="text-4xl font-black text-slate-900 mb-2">xxx <span className="text-base text-slate-400 font-normal">/ month</span></div>
               <p className="text-xs text-blue-600 mb-8 font-bold uppercase tracking-wider">No Setup Fee</p>
 
               <ul className="space-y-3 mb-8 flex-1">
@@ -90,7 +90,7 @@ export default function Pricing() {
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-2">THE GROWTH MACHINE</h3>
               <p className="text-sm text-slate-600 mb-6 font-medium">Complete business infrastructure.</p>
-              <div className="text-4xl font-black text-slate-900 mb-2">$997 <span className="text-base text-slate-400 font-normal">/ month</span></div>
+              <div className="text-4xl font-black text-slate-900 mb-2">XXX <span className="text-base text-slate-400 font-normal">/ month</span></div>
               <p className="text-xs text-slate-400 mb-8 font-bold uppercase tracking-wider">+ Setup Fee</p>
 
               <ul className="space-y-3 mb-8 flex-1">
