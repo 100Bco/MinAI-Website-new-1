@@ -229,6 +229,53 @@ html {
   animation: hero-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+@keyframes word-up {
+  from { transform: translateY(105%); }
+  to { transform: none; }
+}
+
+.word-up {
+  display: inline-block;
+  animation: word-up 0.9s cubic-bezier(0.2, 1, 0.2, 1) both;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+.marquee-track {
+  animation: marquee 28s linear infinite;
+}
+
+@keyframes bar-grow-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+.bar-grow-y {
+  transform-origin: bottom;
+  animation: bar-grow-y 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes bar-grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.bar-grow-x {
+  transform-origin: left;
+  animation: bar-grow-x 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(to right, rgba(148, 163, 184, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.14) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

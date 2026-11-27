@@ -13,6 +13,18 @@ import { AnimatedReveal } from "@/components/AnimatedReveal";
 import { LazyVideo } from "@/components/LazyVideo";
 import { VideoFacade } from "@/components/VideoFacade";
 import { HeroStory } from "@/components/HeroStory";
+import { LogoMarquee } from "@/components/LogoMarquee";
+
+// Each word slides up from behind its own line mask; pure CSS so it plays from the prerendered HTML.
+const riseWords = (text: string, start: number) =>
+  text.split(" ").map((word, i, all) => (
+    <React.Fragment key={word + i}>
+      <span className="inline-block overflow-hidden align-bottom pb-[0.1em] -mb-[0.1em]">
+        <span className="word-up" style={{ animationDelay: `${start + i * 0.06}s` }}>{word}</span>
+      </span>
+      {i < all.length - 1 ? " " : null}
+    </React.Fragment>
+  ));
 import { homeFaqs } from "@/lib/faqs";
 import canvaLogo from "@assets/Canva_logo.svg.png";
 import godaddyLogo from "@assets/Godaddy-logo.png";
@@ -175,13 +187,12 @@ export default function Home() {
       </div>
 
       <h1 className="text-[1.9rem] min-[400px]:text-[2.1rem] sm:text-5xl md:text-7xl font-extrabold font-display tracking-tight mb-4 leading-[1.1] text-slate-900">
-        <span className="hero-rise block" style={{ animationDelay: "0.08s" }}>
-          We Build The Machine
-        </span>
-        <span className="hero-rise block" style={{ animationDelay: "0.2s" }}>
-          That <span className="text-blue-700 relative inline-block">
+        <span className="block">{riseWords("We Build The Machine", 0.05)}</span>{" "}
+        <span className="block">
+          {riseWords("That", 0.29)}{" "}
+          <span className="text-blue-700 relative inline-block">
             <span className="absolute inset-0 blur-2xl bg-blue-400/30 -z-10"></span>
-            Builds Your Business.
+            {riseWords("Builds Your Business.", 0.35)}
           </span>
         </span>
       </h1>
@@ -210,25 +221,17 @@ export default function Home() {
         </div>
 
         {/* Trusted Partners */}
-        <div className="mt-6 md:mt-10 max-w-5xl mx-auto">
-          <p className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 md:mb-5">Trusted Partners</p>
-          <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 sm:gap-x-12 md:gap-x-16">
-            {[
+        <div className="mt-6 md:mt-8">
+          <p className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 md:mb-4">Trusted Partners</p>
+          <LogoMarquee
+            logos={[
               { name: "Google", img: googleLogo },
               { name: "Meta", img: metaLogo },
               { name: "WordPress", img: wordpressLogo },
               { name: "GoDaddy", img: godaddyLogo },
-              { name: "Canva", img: canvaLogo }
-            ].map((partner) => (
-              <img
-                key={partner.name}
-                src={partner.img}
-                alt={partner.name}
-                height={28}
-                className="h-[15px] sm:h-5 md:h-7 w-auto transition-transform duration-300 hover:scale-105"
-              />
-            ))}
-          </div>
+              { name: "Canva", img: canvaLogo },
+            ]}
+          />
         </div>
       </div>
     </div>

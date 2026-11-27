@@ -2,16 +2,17 @@ import React, { useEffect, useRef, type CSSProperties, type ReactNode } from "re
 import { Link } from "wouter";
 import { CalendarCheck, CheckCircle, PhoneMissed, Star } from "lucide-react";
 import { VideoFacade } from "@/components/VideoFacade";
+import { HeroDashboard } from "@/components/HeroDashboard";
 import logoPng from "@assets/logo-main.png";
 
 /*
  * Desktop (lg+) scroll story. The section is a tall track with a sticky stage; scroll progress 0..1
  * is written to the CSS variable --p and every layer derives its motion from it in CSS:
- *   0.00-0.14  hero copy lifts away, the phone rises in
- *   0.14-0.58  "AI answers..." headline, side cards slide out, the conversation plays message by message
+ *   0.00-0.16  hero copy lifts away; the product dashboard rises, shrinks and becomes the phone
+ *   0.16-0.58  "AI answers..." headline, side cards slide out, the conversation plays message by message
  *   0.60-0.86  side cards leave, the phone widens into the demo video
  *   0.86-1.00  the video holds, then the page continues into the next section
- * Below lg the hero is a normal one-screen section and the video stays its own section.
+ * Below lg the hero is a normal one-screen section, the dashboard follows it, and the video stays its own section.
  */
 
 const seg = (a: number, b: number) => `clamp(0, (var(--p) - ${a}) / ${b - a}, 1)`;
@@ -19,12 +20,12 @@ const fadeIn = (a: number, b: number) => seg(a, b);
 const fadeOut = (a: number, b: number) => `calc(1 - ${seg(a, b)})`;
 
 const MESSAGES: { at: number; kind: "system" | "ai" | "lead" | "booked"; text: string }[] = [
-  { at: 0.25, kind: "system", text: "Missed call · New lead · 2:14 PM" },
-  { at: 0.3, kind: "ai", text: "Hi! Sorry we missed your call. How can we help you today?" },
-  { at: 0.36, kind: "lead", text: "Need a quote for a roof leak. Can someone come this week?" },
-  { at: 0.42, kind: "ai", text: "Absolutely. I can book you for Thursday at 10 AM. Does that work?" },
-  { at: 0.48, kind: "lead", text: "Perfect, see you then." },
-  { at: 0.53, kind: "booked", text: "Appointment booked · Thu 10:00 AM" },
+  { at: 0.21, kind: "system", text: "Missed call · New lead · 2:14 PM" },
+  { at: 0.26, kind: "ai", text: "Hi! Sorry we missed your call. How can we help you today?" },
+  { at: 0.32, kind: "lead", text: "Need a quote for a roof leak. Can someone come this week?" },
+  { at: 0.38, kind: "ai", text: "Absolutely. I can book you for Thursday at 10 AM. Does that work?" },
+  { at: 0.44, kind: "lead", text: "Perfect, see you then." },
+  { at: 0.5, kind: "booked", text: "Appointment booked · Thu 10:00 AM" },
 ];
 
 const SIDE_CARDS = [
@@ -87,6 +88,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
   const heroLayer = useRef<HTMLDivElement>(null);
   const videoLayer = useRef<HTMLDivElement>(null);
   const sideLayer = useRef<HTMLDivElement>(null);
+  const dashLayer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = root.current;
@@ -95,8 +97,19 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
     let raf = 0;
     const update = () => {
       raf = 0;
+      const vw = document.documentElement.clientWidth;
+      const ds = desktop.matches
+        ? Math.min(1, (vw * 0.86) / 1100, (window.innerHeight * 0.78) / 640)
+        : Math.min(1, (vw - 40) / 1100);
+      el.style.setProperty("--ds", ds.toFixed(4));
+      const copyBox = heroLayer.current?.firstElementChild as HTMLElement | null;
+      if (desktop.matches && copyBox) {
+        const copyBottom = (heroLayer.current?.offsetTop ?? 0) + copyBox.offsetTop + copyBox.offsetHeight;
+        el.style.setProperty("--dash-y", `${Math.round(Math.max(copyBottom + 28, window.innerHeight * 0.58))}px`);
+      }
       if (!desktop.matches) {
         el.style.setProperty("--p", "0");
+        if (dashLayer.current) dashLayer.current.style.pointerEvents = "auto";
         return;
       }
       const r = el.getBoundingClientRect();
@@ -104,6 +117,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
       const p = Math.min(1, Math.max(0, -r.top / span));
       el.style.setProperty("--p", p.toFixed(4));
       if (heroLayer.current) heroLayer.current.style.pointerEvents = p < 0.08 ? "auto" : "none";
+      if (dashLayer.current) dashLayer.current.style.pointerEvents = p < 0.05 ? "auto" : "none";
       if (sideLayer.current) sideLayer.current.style.pointerEvents = p > 0.26 && p < 0.6 ? "auto" : "none";
       if (videoLayer.current) videoLayer.current.style.pointerEvents = p > 0.84 ? "auto" : "none";
     };
@@ -129,6 +143,8 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
       style={
         {
           "--p": 0,
+          "--ds": 0.32,
+          "--dash-y": "70vh",
           "--h": "min(540px, 60vh)",
           "--w": "min(calc(var(--h) * 1.7778), 82vw)",
           "--side": "calc((var(--w) - 300px) / 2)",
@@ -137,6 +153,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
     >
       <div className="relative min-h-[calc(100svh-72px)] md:min-h-[calc(100svh-6rem)] overflow-hidden lg:sticky lg:top-0 lg:h-screen lg:min-h-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-white to-white pointer-events-none" />
+        <div className="hero-grid absolute inset-0 pointer-events-none" />
         <div
           className="absolute inset-0 pointer-events-none"
           style={{ opacity: `calc(1 - ${seg(0.04, 0.2)} * 0.7)` }}
@@ -144,36 +161,48 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
           {background}
         </div>
 
-        {/* 1. Hero copy: normal flow on mobile, centred on the stage on desktop */}
+        {/* 1. Hero copy: normal flow on mobile, pinned to the top of the stage on desktop */}
         <div
           ref={heroLayer}
-          className="relative z-20 flex min-h-[calc(100svh-72px)] md:min-h-[calc(100svh-6rem)] items-center justify-center py-6 md:py-10 lg:absolute lg:inset-0 lg:min-h-0 lg:pt-24"
+          className="relative z-20 flex min-h-[calc(100svh-72px)] md:min-h-[calc(100svh-6rem)] items-center justify-center py-6 md:py-10 lg:absolute lg:inset-x-0 lg:top-0 lg:min-h-0 lg:items-start lg:pb-0 lg:pt-[calc(6rem+2.5vh)]"
           style={{
-            opacity: fadeOut(0.02, 0.12),
-            transform: `translateY(calc(${seg(0.02, 0.14)} * -90px))`,
-            filter: `blur(calc(${seg(0.02, 0.12)} * 10px))`,
+            opacity: fadeOut(0.02, 0.1),
+            transform: `translateY(calc(${seg(0.02, 0.12)} * -90px))`,
+            filter: `blur(calc(${seg(0.02, 0.1)} * 10px))`,
           }}
         >
           {copy}
         </div>
 
-        <div className="hidden lg:block" aria-hidden="false">
-          {/* Scroll cue */}
+        {/* 2. Product dashboard: below the copy on mobile; peeks in at the bottom of the stage on desktop,
+            then rises and shrinks into the phone */}
+        <div className="relative z-10 px-5 pb-10 lg:static lg:p-0">
           <div
-            className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-400"
-            style={{ opacity: fadeOut(0.01, 0.05) }}
+            ref={dashLayer}
+            className="relative mx-auto lg:absolute lg:left-1/2 lg:top-[calc(50%+40px)] lg:[opacity:var(--dash-o)] lg:[transform:var(--dash-t)]"
+            style={
+              {
+                width: "calc(1100px * var(--ds))",
+                height: "calc(640px * var(--ds))",
+                "--dash-t": `translate(-50%, -50%) translateY(calc(${fadeOut(0, 0.12)} * (var(--dash-y) - 50vh - 40px + 320px * var(--ds)))) scale(calc(1 - ${seg(0.05, 0.15)} * 0.62))`,
+                "--dash-o": fadeOut(0.1, 0.14),
+              } as CSSProperties
+            }
           >
-            Scroll to see it work
-            <span className="block h-8 w-px bg-gradient-to-b from-slate-400 to-transparent" />
+            <div className="absolute left-0 top-0 origin-top-left" style={{ transform: "scale(var(--ds))" }}>
+              <HeroDashboard />
+            </div>
           </div>
+        </div>
 
-          {/* 2. Headline above the phone, later swapped for the video title */}
+        <div className="hidden lg:block" aria-hidden="false">
+          {/* 3. Headline above the phone, later swapped for the video title */}
           <div
             className="absolute inset-x-0 z-20 px-6 text-center"
             style={{
               bottom: "calc(50% - 40px + var(--h) / 2 + 28px)",
-              opacity: `calc(${fadeIn(0.14, 0.22)} * ${fadeOut(0.6, 0.66)})`,
-              transform: `translateY(calc(${fadeOut(0.14, 0.22)} * 30px))`,
+              opacity: `calc(${fadeIn(0.16, 0.24)} * ${fadeOut(0.6, 0.66)})`,
+              transform: `translateY(calc(${fadeOut(0.16, 0.24)} * 30px))`,
             }}
           >
             <p className="font-display text-4xl xl:text-5xl font-extrabold tracking-tight text-slate-900">
@@ -194,7 +223,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
             </p>
           </div>
 
-          {/* 3. Side cards slide out from behind the phone */}
+          {/* 4. Side cards slide out from behind the phone */}
           <div ref={sideLayer} className="pointer-events-none">
             {SIDE_CARDS.map((card) => {
               const Icon = card.icon;
@@ -222,14 +251,14 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
             })}
           </div>
 
-          {/* 4. The phone: rises in, plays the conversation, then hands over to the video */}
+          {/* 5. The phone: appears where the dashboard shrank, plays the conversation, then hands over to the video */}
           <div
             className="absolute left-1/2 z-10 w-[300px] overflow-hidden rounded-[2.2rem] border-[6px] border-slate-900 bg-white shadow-2xl shadow-blue-900/20"
             style={{
               top: "calc(50% + 40px)",
               height: "var(--h)",
-              opacity: `calc(${fadeIn(0.04, 0.12)} * ${fadeOut(0.64, 0.72)})`,
-              transform: `translate(-50%, -50%) translateY(calc(${fadeOut(0.04, 0.2)} * 70vh)) scale(calc(1 + ${seg(0.6, 0.72)} * 0.08))`,
+              opacity: `calc(${fadeIn(0.12, 0.16)} * ${fadeOut(0.64, 0.72)})`,
+              transform: `translate(-50%, -50%) scale(calc(1.25 - ${seg(0.11, 0.2)} * 0.25 + ${seg(0.6, 0.72)} * 0.08))`,
             }}
           >
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
@@ -244,7 +273,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
               ))}
               <div
                 className="mt-1 flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-800"
-                style={{ opacity: fadeIn(0.56, 0.59) }}
+                style={{ opacity: fadeIn(0.54, 0.57) }}
               >
                 <Star className="h-3.5 w-3.5 fill-current" /> Review request scheduled after the job
                 <CheckCircle className="ml-auto h-3.5 w-3.5 text-emerald-600" />
@@ -252,7 +281,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
             </div>
           </div>
 
-          {/* 5. The demo video grows out of the phone's footprint */}
+          {/* 6. The demo video grows out of the phone's footprint */}
           <div
             ref={videoLayer}
             className="pointer-events-none absolute left-1/2 z-10 overflow-hidden rounded-3xl bg-slate-900 shadow-2xl shadow-blue-900/20"
