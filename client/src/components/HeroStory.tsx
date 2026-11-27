@@ -8,24 +8,30 @@ import logoPng from "@assets/logo-main.png";
 /*
  * Desktop (lg+) scroll story. The section is a tall track with a sticky stage; scroll progress 0..1
  * is written to the CSS variable --p and every layer derives its motion from it in CSS:
- *   0.00-0.16  hero copy lifts away; the product dashboard rises, shrinks and becomes the phone
- *   0.16-0.58  "AI answers..." headline, side cards slide out, the conversation plays message by message
- *   0.60-0.86  side cards leave, the phone widens into the demo video
- *   0.86-1.00  the video holds, then the page continues into the next section
+ *   0.00-0.26  hero copy lifts away; the product dashboard rises, shrinks and dissolves into the phone
+ *   0.24-0.60  "AI answers..." headline, side cards slide out, the conversation plays message by message
+ *   0.60-0.90  side cards leave, the phone dissolves as the demo video widens out of it
+ *   0.90-1.00  the video holds, then the page continues into the next section
+ * --p follows the scroll position with a little easing so wheel steps do not jump.
  * Below lg the hero is a normal one-screen section, the dashboard follows it, and the video stays its own section.
  */
 
 const seg = (a: number, b: number) => `clamp(0, (var(--p) - ${a}) / ${b - a}, 1)`;
 const fadeIn = (a: number, b: number) => seg(a, b);
 const fadeOut = (a: number, b: number) => `calc(1 - ${seg(a, b)})`;
+// smoothstep: eases in and out of a segment instead of moving linearly
+const ease = (a: number, b: number) => {
+  const x = seg(a, b);
+  return `calc(${x} * ${x} * (3 - 2 * ${x}))`;
+};
 
 const MESSAGES: { at: number; kind: "system" | "ai" | "lead" | "booked"; text: string }[] = [
-  { at: 0.21, kind: "system", text: "Missed call · New lead · 2:14 PM" },
-  { at: 0.26, kind: "ai", text: "Hi! Sorry we missed your call. How can we help you today?" },
-  { at: 0.32, kind: "lead", text: "Need a quote for a roof leak. Can someone come this week?" },
-  { at: 0.38, kind: "ai", text: "Absolutely. I can book you for Thursday at 10 AM. Does that work?" },
-  { at: 0.44, kind: "lead", text: "Perfect, see you then." },
-  { at: 0.5, kind: "booked", text: "Appointment booked · Thu 10:00 AM" },
+  { at: 0.28, kind: "system", text: "Missed call · New lead · 2:14 PM" },
+  { at: 0.33, kind: "ai", text: "Hi! Sorry we missed your call. How can we help you today?" },
+  { at: 0.38, kind: "lead", text: "Need a quote for a roof leak. Can someone come this week?" },
+  { at: 0.43, kind: "ai", text: "Absolutely. I can book you for Thursday at 10 AM. Does that work?" },
+  { at: 0.48, kind: "lead", text: "Perfect, see you then." },
+  { at: 0.53, kind: "booked", text: "Appointment booked · Thu 10:00 AM" },
 ];
 
 const SIDE_CARDS = [
@@ -94,7 +100,9 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
     const el = root.current;
     if (!el) return;
     const desktop = window.matchMedia("(min-width: 1024px)");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0;
+    let current = -1;
     const update = () => {
       raf = 0;
       const vw = document.documentElement.clientWidth;
@@ -114,12 +122,16 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
       }
       const r = el.getBoundingClientRect();
       const span = Math.max(1, r.height - window.innerHeight);
-      const p = Math.min(1, Math.max(0, -r.top / span));
+      const target = Math.min(1, Math.max(0, -r.top / span));
+      current = current < 0 || reduced ? target : current + (target - current) * 0.14;
+      if (Math.abs(target - current) < 0.0004) current = target;
+      const p = current;
       el.style.setProperty("--p", p.toFixed(4));
-      if (heroLayer.current) heroLayer.current.style.pointerEvents = p < 0.08 ? "auto" : "none";
-      if (dashLayer.current) dashLayer.current.style.pointerEvents = p < 0.05 ? "auto" : "none";
-      if (sideLayer.current) sideLayer.current.style.pointerEvents = p > 0.26 && p < 0.6 ? "auto" : "none";
-      if (videoLayer.current) videoLayer.current.style.pointerEvents = p > 0.84 ? "auto" : "none";
+      if (heroLayer.current) heroLayer.current.style.pointerEvents = p < 0.07 ? "auto" : "none";
+      if (dashLayer.current) dashLayer.current.style.pointerEvents = p < 0.04 ? "auto" : "none";
+      if (sideLayer.current) sideLayer.current.style.pointerEvents = p > 0.33 && p < 0.6 ? "auto" : "none";
+      if (videoLayer.current) videoLayer.current.style.pointerEvents = p > 0.88 ? "auto" : "none";
+      if (current !== target) raf = requestAnimationFrame(update);
     };
     const request = () => {
       if (!raf) raf = requestAnimationFrame(update);
@@ -139,7 +151,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
   return (
     <section
       ref={root}
-      className="relative bg-white lg:h-[330vh]"
+      className="relative bg-white lg:h-[420vh]"
       style={
         {
           "--p": 0,
@@ -166,9 +178,9 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
           ref={heroLayer}
           className="relative z-20 flex min-h-[calc(100svh-72px)] md:min-h-[calc(100svh-6rem)] items-center justify-center py-6 md:py-10 lg:absolute lg:inset-x-0 lg:top-0 lg:min-h-0 lg:items-start lg:pb-0 lg:pt-[calc(6rem+2.5vh)]"
           style={{
-            opacity: fadeOut(0.02, 0.1),
-            transform: `translateY(calc(${seg(0.02, 0.12)} * -90px))`,
-            filter: `blur(calc(${seg(0.02, 0.1)} * 10px))`,
+            opacity: fadeOut(0.02, 0.09),
+            transform: `translateY(calc(${ease(0.02, 0.11)} * -90px))`,
+            filter: `blur(calc(${seg(0.02, 0.09)} * 10px))`,
           }}
         >
           {copy}
@@ -179,13 +191,14 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
         <div className="relative z-10 px-5 pb-10 lg:static lg:p-0">
           <div
             ref={dashLayer}
-            className="relative mx-auto lg:absolute lg:left-1/2 lg:top-[calc(50%+40px)] lg:[opacity:var(--dash-o)] lg:[transform:var(--dash-t)]"
+            className="relative mx-auto lg:absolute lg:left-1/2 lg:top-[calc(50%+40px)] lg:[filter:var(--dash-f)] lg:[opacity:var(--dash-o)] lg:[transform:var(--dash-t)]"
             style={
               {
                 width: "calc(1100px * var(--ds))",
                 height: "calc(640px * var(--ds))",
-                "--dash-t": `translate(-50%, -50%) translateY(calc(${fadeOut(0, 0.12)} * (var(--dash-y) - 50vh - 40px + 320px * var(--ds)))) scale(calc(1 - ${seg(0.05, 0.15)} * 0.62))`,
-                "--dash-o": fadeOut(0.1, 0.14),
+                "--dash-t": `translate(-50%, -50%) translateY(calc((1 - ${ease(0, 0.13)}) * (var(--dash-y) - 50vh - 40px + 320px * var(--ds)))) scale(calc(1 - ${ease(0.08, 0.25)} * 0.66))`,
+                "--dash-o": fadeOut(0.17, 0.25),
+                "--dash-f": `blur(calc(${ease(0.16, 0.25)} * 6px))`,
               } as CSSProperties
             }
           >
@@ -201,8 +214,8 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
             className="absolute inset-x-0 z-20 px-6 text-center"
             style={{
               bottom: "calc(50% - 40px + var(--h) / 2 + 28px)",
-              opacity: `calc(${fadeIn(0.16, 0.24)} * ${fadeOut(0.6, 0.66)})`,
-              transform: `translateY(calc(${fadeOut(0.16, 0.24)} * 30px))`,
+              opacity: `calc(${fadeIn(0.24, 0.31)} * ${fadeOut(0.62, 0.68)})`,
+              transform: `translateY(calc((1 - ${ease(0.24, 0.31)}) * 30px))`,
             }}
           >
             <p className="font-display text-4xl xl:text-5xl font-extrabold tracking-tight text-slate-900">
@@ -214,8 +227,8 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
             className="absolute inset-x-0 z-20 px-6 text-center"
             style={{
               bottom: "calc(50% - 40px + var(--h) / 2 + 28px)",
-              opacity: fadeIn(0.78, 0.88),
-              transform: `translateY(calc(${fadeOut(0.78, 0.88)} * 24px))`,
+              opacity: fadeIn(0.84, 0.92),
+              transform: `translateY(calc((1 - ${ease(0.84, 0.92)}) * 24px))`,
             }}
           >
             <p className="text-xl md:text-2xl font-bold font-display text-foreground tracking-wide uppercase">
@@ -235,8 +248,8 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
                   style={{
                     top: "calc(50% + 40px)",
                     left: `calc(50% + ${card.side} * 330px - 130px)`,
-                    opacity: `calc(${fadeIn(0.2, 0.3)} * ${fadeOut(0.58, 0.66)})`,
-                    transform: `translateY(-50%) translateX(calc(${card.side} * (${fadeOut(0.2, 0.32)} * -180px + ${seg(0.58, 0.68)} * 160px))) scale(calc(0.85 + ${seg(0.2, 0.32)} * 0.15)) rotate(calc(${card.side} * ${fadeOut(0.2, 0.32)} * -4deg))`,
+                    opacity: `calc(${fadeIn(0.27, 0.36)} * ${fadeOut(0.6, 0.69)})`,
+                    transform: `translateY(-50%) translateX(calc(${card.side} * ((1 - ${ease(0.27, 0.39)}) * -180px + ${ease(0.6, 0.71)} * 160px))) scale(calc(0.85 + ${ease(0.27, 0.39)} * 0.15)) rotate(calc(${card.side} * (1 - ${ease(0.27, 0.39)}) * -4deg))`,
                   }}
                 >
                   <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${card.tone}`}>
@@ -257,8 +270,9 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
             style={{
               top: "calc(50% + 40px)",
               height: "var(--h)",
-              opacity: `calc(${fadeIn(0.12, 0.16)} * ${fadeOut(0.64, 0.72)})`,
-              transform: `translate(-50%, -50%) scale(calc(1.25 - ${seg(0.11, 0.2)} * 0.25 + ${seg(0.6, 0.72)} * 0.08))`,
+              opacity: `calc(${fadeIn(0.16, 0.24)} * ${fadeOut(0.7, 0.8)})`,
+              transform: `translate(-50%, -50%) scale(calc(1.3 - ${ease(0.12, 0.27)} * 0.3 + ${ease(0.64, 0.8)} * 0.08))`,
+              filter: `blur(calc((1 - ${ease(0.16, 0.25)}) * 6px + ${ease(0.7, 0.8)} * 4px))`,
             }}
           >
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
@@ -273,7 +287,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
               ))}
               <div
                 className="mt-1 flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-800"
-                style={{ opacity: fadeIn(0.54, 0.57) }}
+                style={{ opacity: fadeIn(0.56, 0.59) }}
               >
                 <Star className="h-3.5 w-3.5 fill-current" /> Review request scheduled after the job
                 <CheckCircle className="ml-auto h-3.5 w-3.5 text-emerald-600" />
@@ -290,8 +304,8 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
               width: "var(--w)",
               height: "var(--h)",
               transform: "translate(-50%, -50%)",
-              opacity: fadeIn(0.62, 0.7),
-              clipPath: `inset(0 calc(var(--side) * ${fadeOut(0.62, 0.84)}) 0 calc(var(--side) * ${fadeOut(0.62, 0.84)}) round 28px)`,
+              opacity: fadeIn(0.64, 0.74),
+              clipPath: `inset(0 calc(var(--side) * (1 - ${ease(0.64, 0.9)})) 0 calc(var(--side) * (1 - ${ease(0.64, 0.9)})) round 28px)`,
             }}
           >
             <VideoFacade driveId="1UqAtNkMNQ94rE2JwkrEy9MOWDD2guL88" title="MinAI Demo Video" />
