@@ -11,8 +11,9 @@ import logoPng from "@assets/logo-main.png";
  * One frame carries the story: its width, height, corner radius and bezel are interpolated so the
  * dashboard frame morphs into a phone and the phone into the video, while the content inside swaps.
  *   0.00-0.13  hero copy lifts away, the dashboard frame rises to the centre
- *   0.08-0.24  the frame morphs dashboard -> phone (content swaps around 0.13-0.17)
- *   0.24-0.60  "AI answers..." headline, side cards slide out, the conversation plays message by message
+ *   0.08-0.24  the frame morphs dashboard -> phone (content swaps around 0.13-0.17); while it narrows,
+ *              the "AI answers..." headline drops in and the side cards slide out from behind it
+ *   0.28-0.60  the conversation plays message by message
  *   0.62-0.86  side cards leave, the frame morphs phone -> video (content swaps around 0.64-0.68)
  *   0.86-1.00  the video holds, then the page continues into the next section
  * --p follows the scroll position with a little easing so wheel steps do not jump.
@@ -135,7 +136,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
       el.style.setProperty("--p", p.toFixed(4));
       if (heroLayer.current) heroLayer.current.style.pointerEvents = p < 0.07 ? "auto" : "none";
       if (frameDash.current) frameDash.current.style.pointerEvents = p < 0.04 ? "auto" : "none";
-      if (sideLayer.current) sideLayer.current.style.pointerEvents = p > 0.33 && p < 0.6 ? "auto" : "none";
+      if (sideLayer.current) sideLayer.current.style.pointerEvents = p > 0.25 && p < 0.6 ? "auto" : "none";
       if (frameVideo.current) frameVideo.current.style.pointerEvents = p > 0.84 ? "auto" : "none";
       if (current !== target) raf = requestAnimationFrame(update);
     };
@@ -206,8 +207,8 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
             className="absolute inset-x-0 z-20 px-6 text-center"
             style={{
               bottom: "calc(50% - 40px + var(--h) / 2 + 28px)",
-              opacity: `calc(${fadeIn(0.24, 0.31)} * ${fadeOut(0.62, 0.68)})`,
-              transform: `translateY(calc((1 - ${ease(0.24, 0.31)}) * 30px))`,
+              opacity: `calc(${fadeIn(0.16, 0.24)} * ${fadeOut(0.62, 0.68)})`,
+              transform: `translateY(calc((1 - ${ease(0.16, 0.25)}) * 30px))`,
             }}
           >
             <p className="font-display text-4xl xl:text-5xl font-extrabold tracking-tight text-slate-900">
@@ -240,8 +241,8 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
                   style={{
                     top: "calc(50% + 40px)",
                     left: `calc(50% + ${card.side} * 330px - 130px)`,
-                    opacity: `calc(${fadeIn(0.27, 0.36)} * ${fadeOut(0.6, 0.69)})`,
-                    transform: `translateY(-50%) translateX(calc(${card.side} * ((1 - ${ease(0.27, 0.39)}) * -180px + ${ease(0.6, 0.71)} * 160px))) scale(calc(0.85 + ${ease(0.27, 0.39)} * 0.15)) rotate(calc(${card.side} * (1 - ${ease(0.27, 0.39)}) * -4deg))`,
+                    opacity: `calc(${fadeIn(0.15, 0.22)} * ${fadeOut(0.6, 0.69)})`,
+                    transform: `translateY(-50%) translateX(calc(${card.side} * ((1 - ${ease(0.14, 0.27)}) * -180px + ${ease(0.6, 0.71)} * 160px))) scale(calc(0.85 + ${ease(0.14, 0.27)} * 0.15)) rotate(calc(${card.side} * (1 - ${ease(0.14, 0.27)}) * -4deg))`,
                   }}
                 >
                   <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${card.tone}`}>
