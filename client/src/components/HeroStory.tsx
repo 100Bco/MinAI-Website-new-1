@@ -7,11 +7,14 @@ import logoPng from "@assets/logo-main.png";
 
 /*
  * Desktop (lg+) scroll story. The section is a tall track with a sticky stage; scroll progress 0..1
- * is written to the CSS variable --p and every layer derives its motion from it in CSS:
- *   0.00-0.26  hero copy lifts away; the product dashboard rises, shrinks and dissolves into the phone
+ * is written to the CSS variable --p and every layer derives its motion from it in CSS.
+ * One frame carries the story: its width, height, corner radius and bezel are interpolated so the
+ * dashboard frame morphs into a phone and the phone into the video, while the content inside swaps.
+ *   0.00-0.13  hero copy lifts away, the dashboard frame rises to the centre
+ *   0.08-0.24  the frame morphs dashboard -> phone (content swaps around 0.13-0.17)
  *   0.24-0.60  "AI answers..." headline, side cards slide out, the conversation plays message by message
- *   0.60-0.90  side cards leave, the phone dissolves as the demo video widens out of it
- *   0.90-1.00  the video holds, then the page continues into the next section
+ *   0.62-0.86  side cards leave, the frame morphs phone -> video (content swaps around 0.64-0.68)
+ *   0.86-1.00  the video holds, then the page continues into the next section
  * --p follows the scroll position with a little easing so wheel steps do not jump.
  * Below lg the hero is a normal one-screen section, the dashboard follows it, and the video stays its own section.
  */
@@ -24,6 +27,10 @@ const ease = (a: number, b: number) => {
   const x = seg(a, b);
   return `calc(${x} * ${x} * (3 - 2 * ${x}))`;
 };
+
+const TO_PHONE = ease(0.08, 0.24);
+const TO_VIDEO = ease(0.62, 0.86);
+const RISE = ease(0, 0.13);
 
 const MESSAGES: { at: number; kind: "system" | "ai" | "lead" | "booked"; text: string }[] = [
   { at: 0.28, kind: "system", text: "Missed call · New lead · 2:14 PM" },
@@ -92,9 +99,9 @@ function Bubble({ kind, text, at }: (typeof MESSAGES)[number]) {
 export function HeroStory({ background, copy }: { background: ReactNode; copy: ReactNode }) {
   const root = useRef<HTMLElement>(null);
   const heroLayer = useRef<HTMLDivElement>(null);
-  const videoLayer = useRef<HTMLDivElement>(null);
   const sideLayer = useRef<HTMLDivElement>(null);
-  const dashLayer = useRef<HTMLDivElement>(null);
+  const frameDash = useRef<HTMLDivElement>(null);
+  const frameVideo = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = root.current;
@@ -117,7 +124,6 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
       }
       if (!desktop.matches) {
         el.style.setProperty("--p", "0");
-        if (dashLayer.current) dashLayer.current.style.pointerEvents = "auto";
         return;
       }
       const r = el.getBoundingClientRect();
@@ -128,9 +134,9 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
       const p = current;
       el.style.setProperty("--p", p.toFixed(4));
       if (heroLayer.current) heroLayer.current.style.pointerEvents = p < 0.07 ? "auto" : "none";
-      if (dashLayer.current) dashLayer.current.style.pointerEvents = p < 0.04 ? "auto" : "none";
+      if (frameDash.current) frameDash.current.style.pointerEvents = p < 0.04 ? "auto" : "none";
       if (sideLayer.current) sideLayer.current.style.pointerEvents = p > 0.33 && p < 0.6 ? "auto" : "none";
-      if (videoLayer.current) videoLayer.current.style.pointerEvents = p > 0.88 ? "auto" : "none";
+      if (frameVideo.current) frameVideo.current.style.pointerEvents = p > 0.84 ? "auto" : "none";
       if (current !== target) raf = requestAnimationFrame(update);
     };
     const request = () => {
@@ -157,19 +163,18 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
           "--p": 0,
           "--ds": 0.32,
           "--dash-y": "70vh",
+          // frame sizes in its three states
+          "--dw": "calc(1100px * var(--ds))",
+          "--dh": "calc(640px * var(--ds))",
           "--h": "min(540px, 60vh)",
           "--w": "min(calc(var(--h) * 1.7778), 82vw)",
-          "--side": "calc((var(--w) - 300px) / 2)",
         } as CSSProperties
       }
     >
       <div className="relative min-h-[calc(100svh-72px)] md:min-h-[calc(100svh-6rem)] overflow-hidden lg:sticky lg:top-0 lg:h-screen lg:min-h-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-white to-white pointer-events-none" />
         <div className="hero-grid absolute inset-0 pointer-events-none" />
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ opacity: `calc(1 - ${seg(0.04, 0.2)} * 0.7)` }}
-        >
+        <div className="absolute inset-0 pointer-events-none" style={{ opacity: `calc(1 - ${seg(0.04, 0.2)} * 0.7)` }}>
           {background}
         </div>
 
@@ -186,30 +191,17 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
           {copy}
         </div>
 
-        {/* 2. Product dashboard: below the copy on mobile; peeks in at the bottom of the stage on desktop,
-            then rises and shrinks into the phone */}
-        <div className="relative z-10 px-5 pb-10 lg:static lg:p-0">
-          <div
-            ref={dashLayer}
-            className="relative mx-auto lg:absolute lg:left-1/2 lg:top-[calc(50%+40px)] lg:[filter:var(--dash-f)] lg:[opacity:var(--dash-o)] lg:[transform:var(--dash-t)]"
-            style={
-              {
-                width: "calc(1100px * var(--ds))",
-                height: "calc(640px * var(--ds))",
-                "--dash-t": `translate(-50%, -50%) translateY(calc((1 - ${ease(0, 0.13)}) * (var(--dash-y) - 50vh - 40px + 320px * var(--ds)))) scale(calc(1 - ${ease(0.08, 0.25)} * 0.66))`,
-                "--dash-o": fadeOut(0.17, 0.25),
-                "--dash-f": `blur(calc(${ease(0.16, 0.25)} * 6px))`,
-              } as CSSProperties
-            }
-          >
+        {/* Mobile and tablet: the dashboard simply follows the hero copy */}
+        <div className="relative z-10 px-5 pb-10 lg:hidden">
+          <div className="relative mx-auto" style={{ width: "var(--dw)", height: "var(--dh)" }}>
             <div className="absolute left-0 top-0 origin-top-left" style={{ transform: "scale(var(--ds))" }}>
               <HeroDashboard />
             </div>
           </div>
         </div>
 
-        <div className="hidden lg:block" aria-hidden="false">
-          {/* 3. Headline above the phone, later swapped for the video title */}
+        <div className="hidden lg:block">
+          {/* 2. Headline above the phone, later swapped for the video title */}
           <div
             className="absolute inset-x-0 z-20 px-6 text-center"
             style={{
@@ -236,7 +228,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
             </p>
           </div>
 
-          {/* 4. Side cards slide out from behind the phone */}
+          {/* 3. Side cards slide out from behind the phone */}
           <div ref={sideLayer} className="pointer-events-none">
             {SIDE_CARDS.map((card) => {
               const Icon = card.icon;
@@ -264,51 +256,84 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
             })}
           </div>
 
-          {/* 5. The phone: appears where the dashboard shrank, plays the conversation, then hands over to the video */}
+          {/* 4. The one frame: dashboard -> phone -> video. Only its shape changes; the content inside swaps. */}
           <div
-            className="absolute left-1/2 z-10 w-[300px] overflow-hidden rounded-[2.2rem] border-[6px] border-slate-900 bg-white shadow-2xl shadow-blue-900/20"
+            className="absolute left-1/2 z-10 overflow-hidden bg-white"
             style={{
               top: "calc(50% + 40px)",
-              height: "var(--h)",
-              opacity: `calc(${fadeIn(0.16, 0.24)} * ${fadeOut(0.7, 0.8)})`,
-              transform: `translate(-50%, -50%) scale(calc(1.3 - ${ease(0.12, 0.27)} * 0.3 + ${ease(0.64, 0.8)} * 0.08))`,
-              filter: `blur(calc((1 - ${ease(0.16, 0.25)}) * 6px + ${ease(0.7, 0.8)} * 4px))`,
+              width: `calc(var(--dw) + (300px - var(--dw)) * ${TO_PHONE} + (var(--w) - 300px) * ${TO_VIDEO})`,
+              height: `calc(var(--dh) + (var(--h) - var(--dh)) * ${TO_PHONE})`,
+              borderRadius: `calc(28px * var(--ds) + (36px - 28px * var(--ds)) * ${TO_PHONE} + (24px - 36px) * ${TO_VIDEO})`,
+              // phone bezel grows in with the phone shape and thins out again for the video
+              boxShadow: `0 0 0 calc(1px + ${TO_PHONE} * 6px - ${TO_VIDEO} * 7px) #0f172a, 0 40px 120px -30px rgba(29, 78, 216, 0.35)`,
+              transform: `translate(-50%, -50%) translateY(calc((1 - ${RISE}) * (var(--dash-y) - 50vh - 40px + var(--dh) / 2)))`,
             }}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-              <img src={logoPng} alt="" className="h-5 w-auto" />
-              <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> AI active 24/7
-              </span>
-            </div>
-            <div className="flex h-[calc(100%-49px)] flex-col justify-end gap-2.5 bg-gradient-to-b from-white to-slate-50 p-4">
-              {MESSAGES.map((m) => (
-                <Bubble key={m.text} {...m} />
-              ))}
-              <div
-                className="mt-1 flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-800"
-                style={{ opacity: fadeIn(0.56, 0.59) }}
-              >
-                <Star className="h-3.5 w-3.5 fill-current" /> Review request scheduled after the job
-                <CheckCircle className="ml-auto h-3.5 w-3.5 text-emerald-600" />
+            {/* dashboard content, centred so the shrinking frame crops it evenly */}
+            <div
+              ref={frameDash}
+              className="absolute left-1/2 top-1/2"
+              style={{
+                width: "var(--dw)",
+                height: "var(--dh)",
+                transform: "translate(-50%, -50%)",
+                opacity: fadeOut(0.13, 0.16),
+              }}
+            >
+              <div className="absolute left-0 top-0 origin-top-left" style={{ transform: "scale(var(--ds))" }}>
+                <HeroDashboard />
               </div>
             </div>
-          </div>
 
-          {/* 6. The demo video grows out of the phone's footprint */}
-          <div
-            ref={videoLayer}
-            className="pointer-events-none absolute left-1/2 z-10 overflow-hidden rounded-3xl bg-slate-900 shadow-2xl shadow-blue-900/20"
-            style={{
-              top: "calc(50% + 40px)",
-              width: "var(--w)",
-              height: "var(--h)",
-              transform: "translate(-50%, -50%)",
-              opacity: fadeIn(0.64, 0.74),
-              clipPath: `inset(0 calc(var(--side) * (1 - ${ease(0.64, 0.9)})) 0 calc(var(--side) * (1 - ${ease(0.64, 0.9)})) round 28px)`,
-            }}
-          >
-            <VideoFacade driveId="1UqAtNkMNQ94rE2JwkrEy9MOWDD2guL88" title="MinAI Demo Video" />
+            {/* phone content */}
+            <div
+              className="absolute left-1/2 top-1/2 flex w-[300px] flex-col"
+              style={{
+                height: "var(--h)",
+                transform: "translate(-50%, -50%)",
+                opacity: `calc(${fadeIn(0.15, 0.18)} * ${fadeOut(0.64, 0.67)})`,
+              }}
+            >
+              <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                <img src={logoPng} alt="" className="h-5 w-auto" />
+                <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> AI active 24/7
+                </span>
+              </div>
+              <div className="relative flex flex-1 flex-col justify-end gap-2.5 bg-gradient-to-b from-white to-slate-50 p-4">
+                {/* idle screen until the first lead comes in */}
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center"
+                  style={{ opacity: fadeOut(0.27, 0.29) }}
+                >
+                  <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+                    <span className="absolute inset-0 animate-ping rounded-full bg-blue-200/60 motion-reduce:hidden" />
+                    <PhoneMissed className="relative h-6 w-6" />
+                  </span>
+                  <p className="text-sm font-bold text-slate-900">AI is on duty 24/7</p>
+                  <p className="px-8 text-xs font-medium text-slate-500">Waiting for the next call, text or message...</p>
+                </div>
+                {MESSAGES.map((m) => (
+                  <Bubble key={m.text} {...m} />
+                ))}
+                <div
+                  className="mt-1 flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-800"
+                  style={{ opacity: fadeIn(0.56, 0.59) }}
+                >
+                  <Star className="h-3.5 w-3.5 fill-current" /> Review request scheduled after the job
+                  <CheckCircle className="ml-auto h-3.5 w-3.5 text-emerald-700" />
+                </div>
+              </div>
+            </div>
+
+            {/* video content fills whatever shape the frame has */}
+            <div
+              ref={frameVideo}
+              className="pointer-events-none absolute inset-0 bg-slate-900"
+              style={{ opacity: fadeIn(0.65, 0.68) }}
+            >
+              <VideoFacade driveId="1UqAtNkMNQ94rE2JwkrEy9MOWDD2guL88" title="MinAI Demo Video" />
+            </div>
           </div>
         </div>
       </div>
