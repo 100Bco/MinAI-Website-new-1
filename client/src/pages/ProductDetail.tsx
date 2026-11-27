@@ -62,10 +62,7 @@ export default function ProductDetail() {
 
                   <div className="aspect-video rounded-[1.5rem] bg-slate-900 overflow-hidden relative">
                     <div className="absolute inset-0">
-                      <VideoFacade
-                        embedUrl={`https://drive.google.com/file/d/${product.demoVideoId}/preview?autoplay=1`}
-                        title={`${product.title} Demo Video`}
-                      />
+                      <VideoFacade driveId={product.demoVideoId} title={`${product.title} Demo Video`} />
                     </div>
                   </div>
                 </div>

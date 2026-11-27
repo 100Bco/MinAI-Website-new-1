@@ -120,6 +120,7 @@ npm run check
 - `client/src/lib/seo.ts` is the single source for every page's title, description, OG image, breadcrumbs and JSON-LD. Adding a page means adding a route in `App.tsx` **and** an entry in `pages` there; it then appears in the prerender, `sitemap.xml` and the HTML sitemap automatically.
 - `npm run build` runs the Vite client build, an SSR build of `client/src/entry-server.tsx`, then `script/prerender.mjs`, which writes `dist/public/<route>.html` with full content and head tags, `404.html` and `sitemap.xml`. `main.tsx` hydrates that HTML.
 - OG thumbnails live in `client/public/og/<page>.jpg` (1200×630, realistic photo + logo + short title). Pages without one use `og/default.jpg`.
+- Google Drive demo videos render through `VideoFacade` (click to load). Its poster is `client/public/media/video-<driveId>.webp`, the video's own Drive thumbnail (`https://drive.google.com/thumbnail?id=<driveId>&sz=w1600`); add one whenever a new `demoVideoId` is added.
 - Above-the-fold blocks use `<AnimatedReveal immediate>` (CSS animation) so they paint without waiting for JS.
 - Analytics (GA4, Vercel Analytics) and the LeadConnector chat widget load only after cookie consent (`lib/consent.ts`, `CookieConsent.tsx`, `ConsentScripts.tsx`). Do not add tracking scripts to `index.html`; add them to `ConsentScripts.tsx` under the right category and list them in the cookie table in `Privacy.tsx`.
 

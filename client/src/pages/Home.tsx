@@ -323,10 +323,7 @@ export default function Home() {
             Watch This Video! <span className="text-primary">(You Need To Turn Sound On)</span>
           </h2>
           <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border border-border bg-black">
-            <VideoFacade
-              embedUrl="https://drive.google.com/file/d/1UqAtNkMNQ94rE2JwkrEy9MOWDD2guL88/preview?autoplay=1"
-              title="MinAI Demo Video"
-            />
+            <VideoFacade driveId="1UqAtNkMNQ94rE2JwkrEy9MOWDD2guL88" title="MinAI Demo Video" />
           </div>
         </div>
       </section>
