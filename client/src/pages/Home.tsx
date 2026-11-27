@@ -12,6 +12,7 @@ import { useModal } from "@/context/ModalContext";
 import { AnimatedReveal } from "@/components/AnimatedReveal";
 import { LazyVideo } from "@/components/LazyVideo";
 import { VideoFacade } from "@/components/VideoFacade";
+import { HeroStory } from "@/components/HeroStory";
 import { homeFaqs } from "@/lib/faqs";
 import canvaLogo from "@assets/Canva_logo.svg.png";
 import godaddyLogo from "@assets/Godaddy-logo.png";
@@ -103,37 +104,6 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
   </details>
 );
 
-const heroActivity = [
-  { icon: PhoneMissed, title: "Missed call", text: "Text-back sent automatically", tone: "bg-rose-50 text-rose-600", pos: "left-[4%] top-[18%]" },
-  { icon: CalendarCheck, title: "Appointment booked", text: "AI booked it while you slept", tone: "bg-emerald-50 text-emerald-600", pos: "right-[4%] top-[24%]" },
-  { icon: Star, title: "Review request sent", text: "Happy customer → Google review", tone: "bg-amber-50 text-amber-600", pos: "left-[6%] bottom-[20%]" },
-  { icon: MessageSquare, title: "Lead followed up", text: "SMS sequence running 24/7", tone: "bg-blue-50 text-blue-600", pos: "right-[6%] bottom-[16%]" },
-];
-
-const HeroActivityCard = ({ icon: Icon, title, text, tone, pos, delay }: (typeof heroActivity)[number] & { delay: number }) => (
-  <motion.div
-    className={`absolute ${pos}`}
-    initial={{ opacity: 0, y: 16, scale: 0.96 }}
-    animate={{ opacity: 1, y: 0, scale: 1 }}
-    transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-  >
-    <motion.div
-      animate={{ y: [0, -8, 0] }}
-      transition={{ duration: 5, delay: delay + 0.6, repeat: Infinity, ease: "easeInOut" }}
-      className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/90 backdrop-blur px-4 py-3 shadow-xl shadow-slate-900/5 w-[19rem]"
-    >
-      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tone}`}>
-        <Icon className="h-5 w-5" />
-      </span>
-      <span className="text-left">
-        <span className="block text-sm font-bold text-slate-900">{title}</span>
-        <span className="block text-xs font-medium text-slate-500">{text}</span>
-      </span>
-      <CheckCircle className="ml-auto h-4 w-4 shrink-0 text-emerald-500" />
-    </motion.div>
-  </motion.div>
-);
-
 export default function Home() {
   const { openDemoModal } = useModal();
 
@@ -175,101 +145,95 @@ export default function Home() {
 
   return (
     <div className="bg-background">
-      {/* Hero Section */}
-      <section className="relative min-h-[calc(100svh-72px)] md:min-h-[calc(100svh-6rem)] flex items-center justify-center py-6 md:py-10 overflow-hidden bg-white">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-white to-white pointer-events-none" />
+      {/* Hero: on desktop a scroll story that flows into the demo video */}
+      <HeroStory
+        background={
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      {floatingIcons.map((item, i) => (
+          <FloatingElement
+            key={i}
+            icon={item.icon}
+            x={item.x}
+            y={item.y}
+            depth={item.depth}
+            delay={item.delay}
+            size={item.size}
+          />
+        ))}
+    </div>
+        }
+        copy={
+    <div className="max-w-7xl mx-auto px-5 sm:px-6 relative z-20 text-center">
+      <div
+        className="hero-rise inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 backdrop-blur px-3.5 py-1.5 mb-4 md:mb-6 text-xs sm:text-sm font-bold text-blue-800 shadow-sm"
+      >
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-500 opacity-60 motion-reduce:hidden" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-600" />
+        </span>
+        AI marketing automation for contractors, real estate, agencies &amp; law firms
+      </div>
 
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          {floatingIcons.map((item, i) => (
-              <FloatingElement
-                key={i}
-                icon={item.icon}
-                x={item.x}
-                y={item.y}
-                depth={item.depth}
-                delay={item.delay}
-                size={item.size}
+      <h1 className="text-[1.9rem] min-[400px]:text-[2.1rem] sm:text-5xl md:text-7xl font-extrabold font-display tracking-tight mb-4 leading-[1.1] text-slate-900">
+        <span className="hero-rise block" style={{ animationDelay: "0.08s" }}>
+          We Build The Machine
+        </span>
+        <span className="hero-rise block" style={{ animationDelay: "0.2s" }}>
+          That <span className="text-blue-700 relative inline-block">
+            <span className="absolute inset-0 blur-2xl bg-blue-400/30 -z-10"></span>
+            Builds Your Business.
+          </span>
+        </span>
+      </h1>
+
+      <div className="hero-rise" style={{ animationDelay: "0.35s" }}>
+        <p className="text-[15px] sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-5 md:mb-8 leading-relaxed font-medium">
+          Stop chasing leads. Stop missing calls. Stop guessing.
+          We install the complete AI infrastructure that captures, nurtures, and closes deals on autopilot.
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <button
+            onClick={openDemoModal}
+            className="px-8 py-3.5 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-blue-600/20 hover:shadow-2xl hover:shadow-blue-600/30 hover:-translate-y-1 flex items-center gap-2 group w-full sm:w-auto justify-center"
+          >
+            Book a Demo
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
+          <Link
+            href="/products"
+            className="px-8 py-3.5 sm:py-4 bg-slate-50 hover:bg-slate-100 text-slate-900 border border-slate-200 rounded-2xl font-bold text-lg transition-all hover:-translate-y-1 w-full sm:w-auto flex items-center justify-center gap-2 group"
+          >
+            View The System
+            <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+          </Link>
+        </div>
+
+        {/* Trusted Partners */}
+        <div className="mt-6 md:mt-10 max-w-5xl mx-auto">
+          <p className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 md:mb-5">Trusted Partners</p>
+          <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 sm:gap-x-12 md:gap-x-16">
+            {[
+              { name: "Google", img: googleLogo },
+              { name: "Meta", img: metaLogo },
+              { name: "WordPress", img: wordpressLogo },
+              { name: "GoDaddy", img: godaddyLogo },
+              { name: "Canva", img: canvaLogo }
+            ].map((partner) => (
+              <img
+                key={partner.name}
+                src={partner.img}
+                alt={partner.name}
+                height={28}
+                className="h-[15px] sm:h-5 md:h-7 w-auto transition-transform duration-300 hover:scale-105"
               />
             ))}
-        </div>
-
-        {/* Live activity cards: what the system does, shown as it happens */}
-        <div className="hidden xl:block absolute inset-0 z-10 pointer-events-none" aria-hidden="true">
-          {heroActivity.map((card, i) => (
-            <HeroActivityCard key={card.title} {...card} delay={1.1 + i * 0.6} />
-          ))}
-        </div>
-
-        <div className="max-w-7xl mx-auto px-5 sm:px-6 relative z-20 text-center">
-          <div
-            className="hero-rise inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 backdrop-blur px-3.5 py-1.5 mb-4 md:mb-6 text-xs sm:text-sm font-bold text-blue-800 shadow-sm"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-500 opacity-60 motion-reduce:hidden" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-600" />
-            </span>
-            AI marketing automation for contractors, real estate, agencies &amp; law firms
-          </div>
-
-          <h1 className="text-[1.9rem] min-[400px]:text-[2.1rem] sm:text-5xl md:text-7xl font-extrabold font-display tracking-tight mb-4 leading-[1.1] text-slate-900">
-            <span className="hero-rise block" style={{ animationDelay: "0.08s" }}>
-              We Build The Machine
-            </span>
-            <span className="hero-rise block" style={{ animationDelay: "0.2s" }}>
-              That <span className="text-blue-700 relative inline-block">
-                <span className="absolute inset-0 blur-2xl bg-blue-400/30 -z-10"></span>
-                Builds Your Business.
-              </span>
-            </span>
-          </h1>
-
-          <div className="hero-rise" style={{ animationDelay: "0.35s" }}>
-            <p className="text-[15px] sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-5 md:mb-8 leading-relaxed font-medium">
-              Stop chasing leads. Stop missing calls. Stop guessing.
-              We install the complete AI infrastructure that captures, nurtures, and closes deals on autopilot.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-              <button
-                onClick={openDemoModal}
-                className="px-8 py-3.5 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-blue-600/20 hover:shadow-2xl hover:shadow-blue-600/30 hover:-translate-y-1 flex items-center gap-2 group w-full sm:w-auto justify-center"
-              >
-                Book a Demo
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <Link
-                href="/products"
-                className="px-8 py-3.5 sm:py-4 bg-slate-50 hover:bg-slate-100 text-slate-900 border border-slate-200 rounded-2xl font-bold text-lg transition-all hover:-translate-y-1 w-full sm:w-auto flex items-center justify-center gap-2 group"
-              >
-                View The System
-                <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-              </Link>
-            </div>
-
-            {/* Trusted Partners */}
-            <div className="mt-6 md:mt-10 max-w-5xl mx-auto">
-              <p className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 md:mb-5">Trusted Partners</p>
-              <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 sm:gap-x-12 md:gap-x-16">
-                {[
-                  { name: "Google", img: googleLogo },
-                  { name: "Meta", img: metaLogo },
-                  { name: "WordPress", img: wordpressLogo },
-                  { name: "GoDaddy", img: godaddyLogo },
-                  { name: "Canva", img: canvaLogo }
-                ].map((partner) => (
-                  <img
-                    key={partner.name}
-                    src={partner.img}
-                    alt={partner.name}
-                    height={28}
-                    className="h-[15px] sm:h-5 md:h-7 w-auto transition-transform duration-300 hover:scale-105"
-                  />
-                ))}
-              </div>
-            </div>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
+        }
+      />
 
       {/* Industries Served */}
       <section className="py-24 bg-slate-50 border-y border-slate-100">
@@ -316,8 +280,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Video Section */}
-      <section className="py-12 bg-background border-b border-border">
+      {/* Video Section (desktop shows the video inside the hero story) */}
+      <section className="py-12 bg-background border-b border-border lg:hidden">
         <div className="max-w-5xl mx-auto px-6 text-center">
           <h2 className="text-xl md:text-2xl font-bold font-display mb-8 text-foreground tracking-wide uppercase">
             Watch This Video! <span className="text-primary">(You Need To Turn Sound On)</span>
