@@ -11,7 +11,6 @@ import { products } from "@/lib/data";
 import { useModal } from "@/context/ModalContext";
 import { AnimatedReveal } from "@/components/AnimatedReveal";
 import { LazyVideo } from "@/components/LazyVideo";
-import { VideoFacade } from "@/components/VideoFacade";
 import { HeroStory } from "@/components/HeroStory";
 import { LogoMarquee } from "@/components/LogoMarquee";
 
@@ -175,7 +174,7 @@ export default function Home() {
     </div>
         }
         copy={
-    <div className="max-w-7xl mx-auto px-5 sm:px-6 relative z-20 text-center">
+    <div className="w-full min-w-0 max-w-7xl mx-auto px-5 sm:px-6 relative z-20 text-center">
       <div
         className="hero-rise inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 backdrop-blur px-3.5 py-1.5 mb-4 md:mb-6 text-xs sm:text-sm font-bold text-blue-800 shadow-sm"
       >
@@ -187,8 +186,8 @@ export default function Home() {
       </div>
 
       <h1 className="text-[1.9rem] min-[400px]:text-[2.1rem] sm:text-5xl md:text-7xl font-extrabold font-display tracking-tight mb-4 leading-[1.1] text-slate-900">
-        <span className="block">{riseWords("We Build The Machine", 0.05)}</span>{" "}
-        <span className="block">
+        <span className="sm:block">{riseWords("We Build The Machine", 0.05)}</span>{" "}
+        <span className="sm:block">
           {riseWords("That", 0.29)}{" "}
           <span className="text-blue-700 relative inline-block">
             <span className="absolute inset-0 blur-2xl bg-blue-400/30 -z-10"></span>
@@ -279,18 +278,6 @@ export default function Home() {
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">{industry.sub}</p>
               </Link>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Video Section (desktop shows the video inside the hero story) */}
-      <section className="py-12 bg-background border-b border-border lg:hidden">
-        <div className="max-w-5xl mx-auto px-6 text-center">
-          <h2 className="text-xl md:text-2xl font-bold font-display mb-8 text-foreground tracking-wide uppercase">
-            Watch This Video! <span className="text-primary">(You Need To Turn Sound On)</span>
-          </h2>
-          <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border border-border bg-black">
-            <VideoFacade driveId="1UqAtNkMNQ94rE2JwkrEy9MOWDD2guL88" title="MinAI Demo Video" />
           </div>
         </div>
       </section>

@@ -18,7 +18,8 @@ import logoPng from "@assets/logo-main.png";
  *              side cards are pushed out, the headline lifts away and the video title settles in
  *   0.86-1.00  the video holds, then the page continues into the next section
  * --p follows the scroll position with a little easing so wheel steps do not jump.
- * Below lg the hero is a normal one-screen section, the dashboard follows it, and the video stays its own section.
+ * Below lg the hero copy is a normal one-screen section, then a shorter pinned track plays the same
+ * frame morph (dashboard -> phone -> video) with the two numbers under the phone instead of beside it.
  */
 
 const seg = (a: number, b: number) => `clamp(0, (var(--p) - ${a}) / ${b - a}, 1)`;
@@ -33,6 +34,8 @@ const ease = (a: number, b: number) => {
 const TO_PHONE = ease(0.08, 0.24);
 const TO_VIDEO = ease(0.62, 0.86);
 const RISE = ease(0, 0.13);
+const M_PHONE = ease(0.1, 0.3);
+const M_VIDEO = ease(0.66, 0.86);
 
 const MESSAGES: { at: number; kind: "system" | "ai" | "lead" | "booked"; text: string }[] = [
   { at: 0.28, kind: "system", text: "Missed call · New lead · 2:14 PM" },
@@ -64,28 +67,29 @@ const SIDE_CARDS = [
   },
 ] as const;
 
-function Bubble({ kind, text, at }: (typeof MESSAGES)[number]) {
+function Bubble({ kind, text, at: base, shift }: (typeof MESSAGES)[number] & { shift: number }) {
+  const at = base + shift;
+  // a message only takes up room once it arrives, so the newest one always sits at the bottom
+  const slot: CSSProperties = { maxHeight: `calc(${fadeIn(at, at + 0.02)} * 180px)` };
   const style: CSSProperties = {
     opacity: fadeIn(at, at + 0.03),
     transform: `translateY(calc(${fadeOut(at, at + 0.03)} * 14px))`,
   };
-  if (kind === "system") {
+  if (kind === "system" || kind === "booked") {
+    const tone = kind === "system" ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700";
+    const Icon = kind === "system" ? PhoneMissed : CalendarCheck;
     return (
-      <div style={style} className="mx-auto flex items-center gap-2 rounded-full bg-rose-50 px-3 py-1.5 text-[11px] font-bold text-rose-700">
-        <PhoneMissed className="h-3.5 w-3.5" /> {text}
-      </div>
-    );
-  }
-  if (kind === "booked") {
-    return (
-      <div style={style} className="mx-auto flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-bold text-emerald-700">
-        <CalendarCheck className="h-3.5 w-3.5" /> {text}
+      <div style={slot} className="flex w-full shrink-0 justify-center overflow-hidden pt-2.5">
+        <div style={style} className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-bold ${tone}`}>
+          <Icon className="h-3.5 w-3.5 shrink-0" /> {text}
+        </div>
       </div>
     );
   }
   const ai = kind === "ai";
   return (
-    <div style={style} className={`max-w-[82%] ${ai ? "self-end" : "self-start"}`}>
+    <div style={slot} className={`flex w-full shrink-0 overflow-hidden pt-2.5 ${ai ? "justify-end" : "justify-start"}`}>
+    <div style={style} className="max-w-[82%]">
       {ai && <div className="mb-1 text-right text-[10px] font-bold uppercase tracking-wider text-blue-700">MinAI · auto-reply</div>}
       <div
         className={`rounded-2xl px-3.5 py-2.5 text-[13px] leading-snug ${
@@ -95,6 +99,45 @@ function Bubble({ kind, text, at }: (typeof MESSAGES)[number]) {
         {text}
       </div>
     </div>
+    </div>
+  );
+}
+
+/** The phone's screen: idle "on duty" state, then the conversation. Times are shifted per layout. */
+function PhoneScreen({ shift }: { shift: number }) {
+  return (
+    <>
+      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+        <img src={logoPng} alt="" className="h-5 w-auto" />
+        <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> AI active 24/7
+        </span>
+      </div>
+      <div className="relative flex min-h-0 flex-1 flex-col justify-end overflow-hidden bg-gradient-to-b from-white to-slate-50 px-4 pb-4 pt-1.5">
+        {/* idle screen until the first lead comes in */}
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center"
+          style={{ opacity: fadeOut(0.27 + shift, 0.29 + shift) }}
+        >
+          <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+            <span className="absolute inset-0 animate-ping rounded-full bg-blue-200/60 motion-reduce:hidden" />
+            <PhoneMissed className="relative h-6 w-6" />
+          </span>
+          <p className="text-sm font-bold text-slate-900">AI is on duty 24/7</p>
+          <p className="px-8 text-xs font-medium text-slate-500">Waiting for the next call, text or message...</p>
+        </div>
+        {MESSAGES.map((m) => (
+          <Bubble key={m.text} {...m} shift={shift} />
+        ))}
+        <div
+          className="mt-2.5 flex shrink-0 items-center gap-2 overflow-hidden rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-800"
+          style={{ opacity: fadeIn(0.56 + shift, 0.59 + shift), maxHeight: `calc(${fadeIn(0.555 + shift, 0.575 + shift)} * 80px)` }}
+        >
+          <Star className="h-3.5 w-3.5 fill-current" /> Review request scheduled after the job
+          <CheckCircle className="ml-auto h-3.5 w-3.5 text-emerald-700" />
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -104,6 +147,9 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
   const sideLayer = useRef<HTMLDivElement>(null);
   const frameDash = useRef<HTMLDivElement>(null);
   const frameVideo = useRef<HTMLDivElement>(null);
+  const mobileTrack = useRef<HTMLDivElement>(null);
+  const mobileStage = useRef<HTMLDivElement>(null);
+  const mobileVideo = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = root.current;
@@ -112,12 +158,13 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0;
     let current = -1;
+    let currentM = -1;
     const update = () => {
       raf = 0;
       const vw = document.documentElement.clientWidth;
       const ds = desktop.matches
         ? Math.min(1, (vw * 0.86) / 1100, (window.innerHeight * 0.78) / 640)
-        : Math.min(1, (vw - 40) / 1100);
+        : Math.min(1, (vw - 32) / 1100);
       el.style.setProperty("--ds", ds.toFixed(4));
       const copyBox = heroLayer.current?.firstElementChild as HTMLElement | null;
       if (desktop.matches && copyBox) {
@@ -126,6 +173,17 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
       }
       if (!desktop.matches) {
         el.style.setProperty("--p", "0");
+        const track = mobileTrack.current, stage = mobileStage.current;
+        if (!track || !stage) return;
+        const r = track.getBoundingClientRect();
+        const stickTop = window.innerHeight - stage.offsetHeight;
+        const span = Math.max(1, r.height - stage.offsetHeight);
+        const target = Math.min(1, Math.max(0, (stickTop - r.top) / span));
+        currentM = currentM < 0 || reduced ? target : currentM + (target - currentM) * 0.16;
+        if (Math.abs(target - currentM) < 0.0004) currentM = target;
+        track.style.setProperty("--p", currentM.toFixed(4));
+        if (mobileVideo.current) mobileVideo.current.style.pointerEvents = currentM > 0.82 ? "auto" : "none";
+        if (currentM !== target) raf = requestAnimationFrame(update);
         return;
       }
       const r = el.getBoundingClientRect();
@@ -191,15 +249,6 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
           }}
         >
           {copy}
-        </div>
-
-        {/* Mobile and tablet: the dashboard simply follows the hero copy */}
-        <div className="relative z-10 px-5 pb-10 lg:hidden">
-          <div className="relative mx-auto" style={{ width: "var(--dw)", height: "var(--dh)" }}>
-            <div className="absolute left-0 top-0 origin-top-left" style={{ transform: "scale(var(--ds))" }}>
-              <HeroDashboard />
-            </div>
-          </div>
         </div>
 
         <div className="hidden lg:block">
@@ -296,36 +345,7 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
                 opacity: `calc(${fadeIn(0.15, 0.18)} * ${fadeOut(0.64, 0.67)})`,
               }}
             >
-              <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                <img src={logoPng} alt="" className="h-5 w-auto" />
-                <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> AI active 24/7
-                </span>
-              </div>
-              <div className="relative flex flex-1 flex-col justify-end gap-2.5 bg-gradient-to-b from-white to-slate-50 p-4">
-                {/* idle screen until the first lead comes in */}
-                <div
-                  className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center"
-                  style={{ opacity: fadeOut(0.27, 0.29) }}
-                >
-                  <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-700">
-                    <span className="absolute inset-0 animate-ping rounded-full bg-blue-200/60 motion-reduce:hidden" />
-                    <PhoneMissed className="relative h-6 w-6" />
-                  </span>
-                  <p className="text-sm font-bold text-slate-900">AI is on duty 24/7</p>
-                  <p className="px-8 text-xs font-medium text-slate-500">Waiting for the next call, text or message...</p>
-                </div>
-                {MESSAGES.map((m) => (
-                  <Bubble key={m.text} {...m} />
-                ))}
-                <div
-                  className="mt-1 flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-800"
-                  style={{ opacity: fadeIn(0.56, 0.59) }}
-                >
-                  <Star className="h-3.5 w-3.5 fill-current" /> Review request scheduled after the job
-                  <CheckCircle className="ml-auto h-3.5 w-3.5 text-emerald-700" />
-                </div>
-              </div>
+              <PhoneScreen shift={0} />
             </div>
 
             {/* video content fills whatever shape the frame has */}
@@ -334,6 +354,110 @@ export function HeroStory({ background, copy }: { background: ReactNode; copy: R
               className="pointer-events-none absolute inset-0 bg-slate-900"
               style={{ opacity: fadeIn(0.65, 0.68) }}
             >
+              <VideoFacade driveId="1UqAtNkMNQ94rE2JwkrEy9MOWDD2guL88" title="MinAI Demo Video" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile and tablet: a shorter version of the same story. One frame stays pinned under the
+          navbar while you swipe: dashboard -> phone with the conversation -> video. */}
+      <div
+        ref={mobileTrack}
+        className="relative lg:hidden"
+        style={
+          {
+            "--p": 0,
+            height: "300vh",
+            "--mw": "calc(100vw - 32px)",
+            "--mdh": "calc(var(--mw) * 0.5818)",
+            "--pw": "min(270px, calc(100vw - 96px))",
+            "--ph": "min(470px, calc(100svh - 72px - 220px))",
+            "--mvh": "calc(var(--mw) * 0.5625)",
+          } as CSSProperties
+        }
+      >
+        <div ref={mobileStage} className="sticky top-[72px] h-[calc(100svh-72px)] overflow-hidden md:top-24 md:h-[calc(100svh-6rem)]">
+          <div className="hero-grid absolute inset-0 pointer-events-none" />
+
+          {/* headline above the phone, swapped for the video title */}
+          <div
+            className="absolute inset-x-0 z-20 px-5 text-center"
+            style={{
+              bottom: "calc(50% + var(--ph) / 2 + 18px)",
+              opacity: `calc(${fadeIn(0.2, 0.28)} * ${fadeOut(0.68, 0.76)})`,
+              transform: `translateY(calc((1 - ${ease(0.2, 0.29)}) * 20px - ${ease(0.66, 0.78)} * 24px))`,
+            }}
+          >
+            <p className="font-display text-[1.6rem] sm:text-3xl font-extrabold leading-tight tracking-tight text-slate-900">
+              AI answers calls &amp; texts <span className="text-blue-700">instantly 24/7.</span>
+            </p>
+          </div>
+          <div
+            className="absolute inset-x-0 z-20 px-5 text-center"
+            style={{
+              bottom: "calc(50% + var(--mvh) / 2 + 18px)",
+              opacity: fadeIn(0.78, 0.86),
+              transform: `translateY(calc((1 - ${ease(0.77, 0.87)}) * 16px))`,
+            }}
+          >
+            <p className="text-base sm:text-xl font-bold font-display text-foreground tracking-wide uppercase">
+              Watch This Video! <span className="block text-primary sm:inline">(Turn Sound On)</span>
+            </p>
+          </div>
+
+          {/* the two numbers sit under the phone instead of beside it */}
+          <div
+            className="absolute inset-x-0 z-20 flex justify-center gap-2 px-4"
+            style={{
+              top: "calc(50% + var(--ph) / 2 + 16px)",
+              opacity: `calc(${fadeIn(0.24, 0.32)} * ${fadeOut(0.64, 0.72)})`,
+              transform: `translateY(calc((1 - ${ease(0.24, 0.33)}) * 16px + ${ease(0.64, 0.74)} * 16px))`,
+            }}
+          >
+            {SIDE_CARDS.map((card) => (
+              <Link
+                key={card.label}
+                href={card.href}
+                className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-white px-3 py-2 shadow-lg shadow-slate-900/5"
+              >
+                <span className="text-xl font-extrabold text-blue-700">{card.value}</span>
+                <span className="text-[11px] font-semibold leading-tight text-slate-600 max-w-[110px]">{card.text}</span>
+              </Link>
+            ))}
+          </div>
+
+          {/* the frame */}
+          <div
+            className="absolute left-1/2 top-1/2 z-10 overflow-hidden bg-white"
+            style={{
+              width: `calc(var(--mw) + (var(--pw) - var(--mw)) * ${M_PHONE} + (var(--mw) - var(--pw)) * ${M_VIDEO})`,
+              height: `calc(var(--mdh) + (var(--ph) - var(--mdh)) * ${M_PHONE} + (var(--mvh) - var(--ph)) * ${M_VIDEO})`,
+              borderRadius: `calc(14px + 18px * ${M_PHONE} - 14px * ${M_VIDEO})`,
+              boxShadow: `0 0 0 calc(1px + ${M_PHONE} * 5px - ${M_VIDEO} * 6px) #0f172a, 0 30px 80px -30px rgba(29, 78, 216, 0.35)`,
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <div
+              className="absolute left-1/2 top-1/2"
+              style={{ width: "var(--dw)", height: "var(--dh)", transform: "translate(-50%, -50%)", opacity: fadeOut(0.16, 0.19) }}
+            >
+              <div className="absolute left-0 top-0 origin-top-left" style={{ transform: "scale(var(--ds))" }}>
+                <HeroDashboard />
+              </div>
+            </div>
+            <div
+              className="absolute left-1/2 top-1/2 flex flex-col"
+              style={{
+                width: "var(--pw)",
+                height: "var(--ph)",
+                transform: "translate(-50%, -50%)",
+                opacity: `calc(${fadeIn(0.18, 0.21)} * ${fadeOut(0.67, 0.7)})`,
+              }}
+            >
+              <PhoneScreen shift={0.04} />
+            </div>
+            <div ref={mobileVideo} className="pointer-events-none absolute inset-0 bg-slate-900" style={{ opacity: fadeIn(0.68, 0.71) }}>
               <VideoFacade driveId="1UqAtNkMNQ94rE2JwkrEy9MOWDD2guL88" title="MinAI Demo Video" />
             </div>
           </div>
