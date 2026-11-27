@@ -4,16 +4,23 @@
 
 MinAI is a SaaS platform that replaces fragmented software tools (CRM, email, SMS, reputation management, booking, etc.) with a unified AI-powered marketing automation system built specifically for small businesses and contractors.
 
-For detailed content about all pages, products, pricing, and testimonials, see: https://minai.biz/llms-full.txt
+For detailed content about all pages, products, industries and pricing, see: https://minai.biz/llms-full.txt
 
 ## Website
 
 - Homepage: https://minai.biz
 - Products: https://minai.biz/products
 - Pricing: https://minai.biz/pricing
-- Testimonials: https://minai.biz/testimonials
-- Our Works: https://minai.biz/works
+- Industries: https://minai.biz/industries
+  - Local Service Contractors: https://minai.biz/industries/local-service-contractors
+  - Real Estate Developers: https://minai.biz/industries/real-estate-developers
+  - Agencies & Brokerages: https://minai.biz/industries/agencies-brokerages
+  - Personal Injury Law Firms: https://minai.biz/industries/personal-injury-law-firms
 - About Us: https://minai.biz/about
+- Contact / Book a Demo: https://minai.biz/contact
+- Privacy & Cookie Policy: https://minai.biz/privacy
+- Terms of Use & Disclaimer: https://minai.biz/terms
+- Sitemap: https://minai.biz/sitemap
 
 ## Products
 

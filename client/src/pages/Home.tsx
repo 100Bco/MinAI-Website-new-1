@@ -4,12 +4,15 @@ import {
   ArrowRight, CheckCircle, Play, Star, Zap, Shield, Clock,
   BarChart, PhoneMissed, MessageSquare, LayoutDashboard,
   MapPin, ChevronDown, ChevronUp, X, MonitorPlay, Settings, Rocket,
-  Phone, Mail, Sparkles
+  Phone, Mail, Sparkles, CalendarCheck
 } from "lucide-react";
 import { Link } from "wouter";
 import { products } from "@/lib/data";
 import { useModal } from "@/context/ModalContext";
 import { AnimatedReveal } from "@/components/AnimatedReveal";
+import { LazyVideo } from "@/components/LazyVideo";
+import { VideoFacade } from "@/components/VideoFacade";
+import { homeFaqs } from "@/lib/faqs";
 import canvaLogo from "@assets/Canva_logo.svg.png";
 import godaddyLogo from "@assets/Godaddy-logo.png";
 import googleLogo from "@assets/Google_2015_logo.svg.png";
@@ -90,37 +93,49 @@ const FloatingElement = ({ icon: Icon, x, y, depth, delay, size = "md" }: any) =
   );
 };
 
-const FAQItem = ({ question, answer }: { question: string, answer: string }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <div className="border-b border-border">
-      <button
-        className="w-full py-6 flex items-center justify-between text-left focus:outline-none"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className="text-lg font-medium text-foreground">{question}</span>
-        {isOpen ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <p className="text-muted-foreground leading-relaxed pb-6">{answer}</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
+const FAQItem = ({ question, answer }: { question: string, answer: string }) => (
+  <details className="group border-b border-border">
+    <summary className="w-full py-6 flex items-center justify-between gap-4 text-left cursor-pointer list-none [&::-webkit-details-marker]:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 rounded">
+      <h3 className="text-lg font-medium text-foreground">{question}</h3>
+      <ChevronDown className="w-5 h-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+    </summary>
+    <p className="text-muted-foreground leading-relaxed pb-6">{answer}</p>
+  </details>
+);
+
+const heroActivity = [
+  { icon: PhoneMissed, title: "Missed call", text: "Text-back sent automatically", tone: "bg-rose-50 text-rose-600", pos: "left-[4%] top-[18%]" },
+  { icon: CalendarCheck, title: "Appointment booked", text: "AI booked it while you slept", tone: "bg-emerald-50 text-emerald-600", pos: "right-[4%] top-[24%]" },
+  { icon: Star, title: "Review request sent", text: "Happy customer → Google review", tone: "bg-amber-50 text-amber-600", pos: "left-[6%] bottom-[20%]" },
+  { icon: MessageSquare, title: "Lead followed up", text: "SMS sequence running 24/7", tone: "bg-blue-50 text-blue-600", pos: "right-[6%] bottom-[16%]" },
+];
+
+const HeroActivityCard = ({ icon: Icon, title, text, tone, pos, delay }: (typeof heroActivity)[number] & { delay: number }) => (
+  <motion.div
+    className={`absolute ${pos}`}
+    initial={{ opacity: 0, y: 16, scale: 0.96 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+  >
+    <motion.div
+      animate={{ y: [0, -8, 0] }}
+      transition={{ duration: 5, delay: delay + 0.6, repeat: Infinity, ease: "easeInOut" }}
+      className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/90 backdrop-blur px-4 py-3 shadow-xl shadow-slate-900/5 w-[19rem]"
+    >
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tone}`}>
+        <Icon className="h-5 w-5" />
+      </span>
+      <span className="text-left">
+        <span className="block text-sm font-bold text-slate-900">{title}</span>
+        <span className="block text-xs font-medium text-slate-500">{text}</span>
+      </span>
+      <CheckCircle className="ml-auto h-4 w-4 shrink-0 text-emerald-500" />
+    </motion.div>
+  </motion.div>
+);
 
 export default function Home() {
   const { openDemoModal } = useModal();
-  useEffect(() => { document.title = "MinAI - AI-Powered Marketing Automation for Small Businesses"; }, []);
 
   // Danh sách icon trải đều khắp hero, nhiều hơn để tạo density như screenshot
   const floatingIcons = [
@@ -161,11 +176,10 @@ export default function Home() {
   return (
     <div className="bg-background">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-16 overflow-hidden bg-white">
+      <section className="relative min-h-[calc(100svh-72px)] md:min-h-[calc(100svh-6rem)] flex items-center justify-center py-6 md:py-10 overflow-hidden bg-white">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-white to-white pointer-events-none" />
 
-        {/* --- 2. Floating Icons Background (Updated) --- */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
           {floatingIcons.map((item, i) => (
               <FloatingElement
                 key={i}
@@ -179,37 +193,53 @@ export default function Home() {
             ))}
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+        {/* Live activity cards: what the system does, shown as it happens */}
+        <div className="hidden xl:block absolute inset-0 z-10 pointer-events-none" aria-hidden="true">
+          {heroActivity.map((card, i) => (
+            <HeroActivityCard key={card.title} {...card} delay={1.1 + i * 0.6} />
+          ))}
+        </div>
 
-            <h1 className="text-5xl md:text-7xl font-extrabold font-display tracking-tight mb-4 leading-[1.1] text-slate-900">
-              We Build The Machine <br />
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 relative z-20 text-center">
+          <div
+            className="hero-rise inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 backdrop-blur px-3.5 py-1.5 mb-4 md:mb-6 text-xs sm:text-sm font-bold text-blue-800 shadow-sm"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-500 opacity-60 motion-reduce:hidden" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-600" />
+            </span>
+            AI marketing automation for contractors, real estate, agencies &amp; law firms
+          </div>
+
+          <h1 className="text-[1.9rem] min-[400px]:text-[2.1rem] sm:text-5xl md:text-7xl font-extrabold font-display tracking-tight mb-4 leading-[1.1] text-slate-900">
+            <span className="hero-rise block" style={{ animationDelay: "0.08s" }}>
+              We Build The Machine
+            </span>
+            <span className="hero-rise block" style={{ animationDelay: "0.2s" }}>
               That <span className="text-blue-700 relative inline-block">
                 <span className="absolute inset-0 blur-2xl bg-blue-400/30 -z-10"></span>
                 Builds Your Business.
               </span>
-            </h1>
+            </span>
+          </h1>
 
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed font-medium">
+          <div className="hero-rise" style={{ animationDelay: "0.35s" }}>
+            <p className="text-[15px] sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-5 md:mb-8 leading-relaxed font-medium">
               Stop chasing leads. Stop missing calls. Stop guessing.
               We install the complete AI infrastructure that captures, nurtures, and closes deals on autopilot.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
               <button
                 onClick={openDemoModal}
-                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-blue-600/20 hover:shadow-2xl hover:shadow-blue-600/30 hover:-translate-y-1 flex items-center gap-2 group w-full sm:w-auto justify-center"
+                className="px-8 py-3.5 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-blue-600/20 hover:shadow-2xl hover:shadow-blue-600/30 hover:-translate-y-1 flex items-center gap-2 group w-full sm:w-auto justify-center"
               >
                 Book a Demo
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               <Link
                 href="/products"
-                className="px-8 py-4 bg-slate-50 hover:bg-slate-100 text-slate-900 border border-slate-200 rounded-2xl font-bold text-lg transition-all hover:-translate-y-1 w-full sm:w-auto flex items-center justify-center gap-2 group"
+                className="px-8 py-3.5 sm:py-4 bg-slate-50 hover:bg-slate-100 text-slate-900 border border-slate-200 rounded-2xl font-bold text-lg transition-all hover:-translate-y-1 w-full sm:w-auto flex items-center justify-center gap-2 group"
               >
                 View The System
                 <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
@@ -217,27 +247,27 @@ export default function Home() {
             </div>
 
             {/* Trusted Partners */}
-            <div className="mt-12 max-w-5xl mx-auto">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-6">Trusted Partners</p>
-              <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-10 md:gap-x-16">
+            <div className="mt-6 md:mt-10 max-w-5xl mx-auto">
+              <p className="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 md:mb-5">Trusted Partners</p>
+              <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 sm:gap-x-12 md:gap-x-16">
                 {[
                   { name: "Google", img: googleLogo },
                   { name: "Meta", img: metaLogo },
-                  { name: "Wordpress", img: wordpressLogo },
+                  { name: "WordPress", img: wordpressLogo },
                   { name: "GoDaddy", img: godaddyLogo },
                   { name: "Canva", img: canvaLogo }
-                ].map((partner, i) => (
-                  <div key={partner.name} className="flex items-center">
-                    <img
-                      src={partner.img}
-                      alt={partner.name}
-                      className="h-5 md:h-7 w-auto transition-transform duration-300 hover:scale-105"
-                    />
-                  </div>
+                ].map((partner) => (
+                  <img
+                    key={partner.name}
+                    src={partner.img}
+                    alt={partner.name}
+                    height={28}
+                    className="h-[15px] sm:h-5 md:h-7 w-auto transition-transform duration-300 hover:scale-105"
+                  />
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -252,31 +282,31 @@ export default function Home() {
               {
                 title: "Local Service Contractors",
                 sub: "HVAC, Roofing, Plumbing, Solar",
-                image: "/industry-1.png",
+                image: "/industry-1.webp",
                 slug: "local-service-contractors"
               },
               {
                 title: "Real Estate Developers",
                 sub: "Condos, Subdivisions, Commercial",
-                image: "/industry-2.png",
+                image: "/industry-2.webp",
                 slug: "real-estate-developers"
               },
               {
                 title: "Agencies &\nBrokerages",
                 sub: "Real Estate, Mortgage, Insurance",
-                image: "/industry-3.png",
+                image: "/industry-3.webp",
                 slug: "agencies-brokerages"
               },
               {
                 title: "Personal Injury\nLaw Firms",
                 sub: "MVA, Slip & Fall, Workers Comp",
-                image: "/industry-4.png",
+                image: "/industry-4.webp",
                 slug: "personal-injury-law-firms"
               }
             ].map((industry, i) => (
               <Link key={i} href={`/industries/${industry.slug}`} className="p-8 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center flex flex-col items-center group block">
                 <div className="h-44 flex items-center justify-center mb-6">
-                  <img src={industry.image} alt={industry.title} className="max-h-44 w-auto object-contain group-hover:scale-105 transition-transform" />
+                  <img src={industry.image} alt={industry.title.replace("\n", " ")} width={176} height={176} loading="lazy" className="max-h-44 w-auto object-contain group-hover:scale-105 transition-transform" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2 whitespace-pre-line group-hover:text-blue-700 transition-colors">{industry.title}</h3>
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">{industry.sub}</p>
@@ -293,11 +323,8 @@ export default function Home() {
             Watch This Video! <span className="text-primary">(You Need To Turn Sound On)</span>
           </h2>
           <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border border-border bg-black">
-            <iframe
-              src="https://drive.google.com/file/d/1UqAtNkMNQ94rE2JwkrEy9MOWDD2guL88/preview"
-              className="w-full h-full"
-              allow="autoplay; encrypted-media"
-              allowFullScreen
+            <VideoFacade
+              embedUrl="https://drive.google.com/file/d/1UqAtNkMNQ94rE2JwkrEy9MOWDD2guL88/preview?autoplay=1"
               title="MinAI Demo Video"
             />
           </div>
@@ -314,7 +341,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* The Amateur */}
-            <div className="p-8 rounded-3xl bg-secondary/30 border border-border opacity-70 grayscale hover:grayscale-0 transition-all">
+            <div className="p-8 rounded-3xl bg-secondary/30 border border-border opacity-95 grayscale hover:grayscale-0 transition-all">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center">
                   <X className="w-6 h-6 text-red-500" />
@@ -416,14 +443,14 @@ export default function Home() {
                 </Link>
               </div>
               <div className="order-1 md:order-2 rounded-3xl overflow-hidden aspect-square flex items-center justify-center">
-                <img src="/MinAI-GIF-1.gif" alt="Capture Every Opportunity" className="w-full h-full object-cover" />
+                <LazyVideo src="/media/minai-phase-1.mp4" poster="/media/minai-phase-1.jpg" label="Capture Every Opportunity" className="w-full h-full object-cover" />
               </div>
             </div>
 
             {/* Phase 2: Nurture */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="rounded-3xl overflow-hidden aspect-square flex items-center justify-center">
-                <img src="/MinAI-GIF-2.gif" alt="Nurture On Autopilot" className="w-full h-full object-cover" />
+                <LazyVideo src="/media/minai-phase-2.mp4" poster="/media/minai-phase-2.jpg" label="Nurture On Autopilot" className="w-full h-full object-cover" />
               </div>
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-bold uppercase tracking-wider mb-4">
@@ -448,7 +475,7 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/products/sms-lead-follow-up" className="text-primary font-semibold hover:underline flex items-center gap-2">
+                <Link href="/products/sms-lead-followup" className="text-primary font-semibold hover:underline flex items-center gap-2">
                   Explore Nurture Tools <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -484,7 +511,7 @@ export default function Home() {
                 </Link>
               </div>
               <div className="order-1 md:order-2 rounded-3xl overflow-hidden aspect-square flex items-center justify-center">
-                <img src="/MinAI-GIF-3.gif" alt="Close & Scale Reputation" className="w-full h-full object-cover" />
+                <LazyVideo src="/media/minai-phase-3.mp4" poster="/media/minai-phase-3.jpg" label="Close & Scale Reputation" className="w-full h-full object-cover" />
               </div>
             </div>
           </div>
@@ -506,7 +533,7 @@ export default function Home() {
               <Link key={product.slug} href={`/products/${product.slug}`} className="p-6 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group block h-full">
                 {product.iconImage ? (
                   <div className="w-[60px] h-[60px] mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <img src={product.iconImage} alt={product.title} className="w-[60px] h-[60px] object-contain" />
+                    <img src={product.iconImage} alt="" width={60} height={60} loading="lazy" className="w-[60px] h-[60px] object-contain" />
                   </div>
                 ) : (
                   <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -604,22 +631,9 @@ export default function Home() {
           </div>
 
           <div className="space-y-2">
-            <FAQItem
-              question="Do I need to be 'tech savvy'?"
-              answer="No. If you can use email and text on your phone, you can use MinAI. We handle the heavy lifting."
-            />
-            <FAQItem
-              question="Does this replace my current website?"
-              answer="It can, and it should. But if you love your current site, we can integrate our tools into it seamlessly."
-            />
-            <FAQItem
-              question="Is there a long-term contract?"
-              answer="Never. We earn your business every month. Cancel anytime with a click."
-            />
-            <FAQItem
-              question="How fast can I get started?"
-              answer="We can have your core system live in 7 days or less after onboarding."
-            />
+            {homeFaqs.map((faq) => (
+              <FAQItem key={faq.question} question={faq.question} answer={faq.answer} />
+            ))}
           </div>
         </div>
       </section>

@@ -42,10 +42,10 @@ export function Navbar() {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-xl border-b border-black/5 py-4 shadow-sm' : 'bg-transparent py-6'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-xl border-b border-black/5 py-3 md:py-4 shadow-sm' : 'bg-transparent py-4 md:py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <img src={logoPng} alt="MinAI Logo" className="h-10 w-auto group-hover:scale-105 transition-transform" />
+          <img src={logoPng} alt="MinAI" width={120} height={40} className="h-10 w-auto group-hover:scale-105 transition-transform" />
         </Link>
 
         {/* Desktop Nav */}
@@ -175,6 +175,8 @@ export function Navbar() {
         {/* Mobile Menu Button */}
         <button
           className="md:hidden text-foreground p-2 rounded-xl hover:bg-black/5"
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileMenuOpen}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}

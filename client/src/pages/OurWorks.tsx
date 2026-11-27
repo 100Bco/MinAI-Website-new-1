@@ -1,18 +1,17 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { AnimatedReveal } from "@/components/AnimatedReveal";
 import { useModal } from "@/context/ModalContext";
-import { industriesData } from "@/pages/IndustryDetail";
+import { industriesData } from "@/lib/industries";
 
 export default function Industries() {
   const { openDemoModal } = useModal();
-  useEffect(() => { document.title = "Industries | MinAI"; }, []);
 
   return (
     <div className="py-16 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
-        <AnimatedReveal>
+        <AnimatedReveal immediate>
           <h1 className="text-5xl md:text-7xl font-display font-extrabold mb-4 text-slate-900 tracking-tight leading-[1.1]">
             Industries <span className="text-blue-700">We Serve.</span>
           </h1>

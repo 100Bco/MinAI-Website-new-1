@@ -1,14 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link } from "wouter";
 import { AnimatedReveal } from "@/components/AnimatedReveal";
 import { products } from "@/lib/data";
 import { ArrowRight } from "lucide-react";
 
 export default function ProductsIndex() {
-  useEffect(() => { document.title = "Products | MinAI"; }, []);
   return (
     <div className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <AnimatedReveal>
+      <AnimatedReveal immediate>
         <div className="text-center mb-12 max-w-3xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-display font-extrabold mb-4 text-slate-900 tracking-tight leading-[1.1]">
             The Full MinAI Stack

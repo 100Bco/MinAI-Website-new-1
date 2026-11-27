@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { AnimatedReveal } from "@/components/AnimatedReveal";
 import { Check } from "lucide-react";
 import { useModal } from "@/context/ModalContext";
@@ -6,16 +6,13 @@ import { useModal } from "@/context/ModalContext";
 export default function Pricing() {
   const { openDemoModal } = useModal();
   
-  useEffect(() => { 
-    document.title = "Pricing | MinAI"; 
-  }, []);
 
   return (
     <div className="py-16 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* HEADER */}
-        <AnimatedReveal className="text-center mb-16">
+        <AnimatedReveal immediate className="text-center mb-16">
           <h1 className="text-5xl md:text-7xl font-display font-extrabold mb-4 text-slate-900 tracking-tight leading-[1.1]">
             Stop Paying For<br /><span className="text-blue-700">10 Different Tools.</span>
           </h1>
@@ -28,7 +25,7 @@ export default function Pricing() {
         <AnimatedReveal delay={0.1} className="max-w-4xl mx-auto mb-20">
           <div className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-xl">
             <div className="bg-slate-50/50 py-4 px-6 text-center border-b border-slate-100">
-              <h3 className="font-bold text-sm text-slate-700 uppercase tracking-widest">The Machine Replaces:</h3>
+              <h2 className="font-bold text-sm text-slate-700 uppercase tracking-widest">The Machine Replaces:</h2>
             </div>
             <div className="divide-y divide-slate-50">
               {[
@@ -41,8 +38,8 @@ export default function Pricing() {
               ].map((tool, i) => (
                 <div key={i} className="flex justify-between items-center py-3 px-6 md:px-12 hover:bg-slate-50 transition-colors">
                   <div>
-                    <span className="text-slate-400 line-through mr-3 text-sm">{tool.name}</span>
-                    <span className="text-red-500 font-bold text-xs">{tool.price}</span>
+                    <span className="text-slate-500 line-through mr-3 text-sm">{tool.name}</span>
+                    <span className="text-red-600 font-bold text-xs">{tool.price}</span>
                   </div>
                   <div className="flex items-center text-blue-600 font-bold text-xs tracking-tight">
                     <Check size={14} className="mr-2" /> INCLUDED
@@ -129,11 +126,11 @@ export default function Pricing() {
 
           <div className="grid grid-cols-1 gap-8">
             <AnimatedReveal direction="left" delay={0.2}>
-              <h4 className="text-base font-bold text-slate-900 mb-2">Why is this cheaper than my CRM?</h4>
+              <h3 className="text-base font-bold text-slate-900 mb-2">Why is this cheaper than my CRM?</h3>
               <p className="text-slate-500 text-sm leading-relaxed">Most companies charge per user or per contact. We charge a flat fee. We want you to grow, not punish you for it.</p>
             </AnimatedReveal>
             <AnimatedReveal direction="left" delay={0.3}>
-              <h4 className="text-base font-bold text-slate-900 mb-2">Is there a setup fee?</h4>
+              <h3 className="text-base font-bold text-slate-900 mb-2">Is there a setup fee?</h3>
               <p className="text-slate-500 text-sm leading-relaxed">
                 DIY is free. Looking for a Done-For-You system with monthly maintenance? Check out our offers at{" "}
                 <a 

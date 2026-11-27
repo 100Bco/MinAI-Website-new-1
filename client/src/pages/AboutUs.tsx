@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { AnimatedReveal } from "@/components/AnimatedReveal";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { useModal } from "@/context/ModalContext";
@@ -6,7 +6,6 @@ import founderImg from "@assets/MinAI Founder.jpg";
 
 export default function AboutUs() {
   const { openDemoModal } = useModal();
-  useEffect(() => { document.title = "About Us | MinAI"; }, []);
 
   return (
     <div className="py-16 bg-background relative overflow-hidden">
@@ -17,7 +16,7 @@ export default function AboutUs() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* HERO */}
-        <AnimatedReveal className="max-w-4xl mb-20">
+        <AnimatedReveal immediate className="max-w-4xl mb-20">
           <h1 className="text-5xl md:text-7xl font-display font-extrabold mb-6 text-slate-900 tracking-tight leading-[1.1]">
             We Don't Do "Marketing".<br />
             <span className="text-blue-700">We Build Infrastructure.</span>
@@ -58,7 +57,7 @@ export default function AboutUs() {
 
           <AnimatedReveal direction="left" delay={0.2}>
             <div className="aspect-square rounded-3xl bg-slate-50 border border-slate-100 shadow-sm overflow-hidden relative group">
-              <img src={founderImg} alt="MinAI Founder" className="w-full h-full object-cover" />
+              <img src={founderImg} alt="MinAI founder" width={900} height={900} loading="lazy" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-blue-500/5 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             </div>
           </AnimatedReveal>

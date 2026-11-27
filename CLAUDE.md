@@ -83,7 +83,7 @@ MinAI is a SaaS marketing automation platform website for small businesses and c
 # Development (starts Express + Vite HMR on port 5001)
 npm run dev
 
-# Client build (Vite → dist/public/)
+# Client build + SSR prerender of every route (→ dist/public/)
 npm run build
 
 # Server build (esbuild → dist/index.cjs)
@@ -104,10 +104,24 @@ npm run check
 | `/products`       | `ProductsIndex.tsx`  | Product grid                 |
 | `/products/:slug` | `ProductDetail.tsx`  | Individual product detail    |
 | `/pricing`        | `Pricing.tsx`        | Pricing tiers & comparison   |
-| `/testimonials`   | `Testimonials.tsx`   | Case studies & proof         |
-| `/works`          | `OurWorks.tsx`       | Portfolio showcase            |
+| `/industries`     | `OurWorks.tsx`       | Industries overview          |
+| `/industries/:slug` | `IndustryDetail.tsx` | Industry pages (data in `lib/industries.ts`) |
 | `/about`          | `AboutUs.tsx`        | Company mission & values     |
+| `/contact`        | `Contact.tsx`        | Demo booking form            |
+| `/privacy`        | `Privacy.tsx`        | Privacy & Cookie Policy      |
+| `/terms`          | `Terms.tsx`          | Terms of Use & Disclaimer    |
+| `/sitemap`        | `SitemapPage.tsx`    | HTML sitemap                 |
 | `*`               | `not-found.tsx`      | 404 page                     |
+
+`Testimonials.tsx` exists but is not routed (`/testimonials` redirects to `/`).
+
+## SEO, prerendering and consent
+
+- `client/src/lib/seo.ts` is the single source for every page's title, description, OG image, breadcrumbs and JSON-LD. Adding a page means adding a route in `App.tsx` **and** an entry in `pages` there; it then appears in the prerender, `sitemap.xml` and the HTML sitemap automatically.
+- `npm run build` runs the Vite client build, an SSR build of `client/src/entry-server.tsx`, then `script/prerender.mjs`, which writes `dist/public/<route>.html` with full content and head tags, `404.html` and `sitemap.xml`. `main.tsx` hydrates that HTML.
+- OG thumbnails live in `client/public/og/<page>.jpg` (1200×630, realistic photo + logo + short title). Pages without one use `og/default.jpg`.
+- Above-the-fold blocks use `<AnimatedReveal immediate>` (CSS animation) so they paint without waiting for JS.
+- Analytics (GA4, Vercel Analytics) and the LeadConnector chat widget load only after cookie consent (`lib/consent.ts`, `CookieConsent.tsx`, `ConsentScripts.tsx`). Do not add tracking scripts to `index.html`; add them to `ConsentScripts.tsx` under the right category and list them in the cookie table in `Privacy.tsx`.
 
 ## API Endpoints
 
@@ -194,9 +208,9 @@ All product content is hardcoded in `client/src/lib/data.ts` as a typed array. E
 
 **Platform:** Vercel
 
-- Build command: `npm run build` (Vite client build only)
+- Build command: `npm run build` (Vite client build, SSR build, prerender)
 - Output directory: `dist/public`
-- SPA fallback: all non-API routes rewrite to `/index.html`
+- Clean URLs: each route is served from its prerendered `<route>.html`; unknown paths get `404.html` with a real 404 status. Old URLs are 301-redirected in `vercel.json`.
 - Serverless functions: `/api` directory handles API endpoints
 - The `api/demo-requests.ts` file is a standalone Vercel-compatible handler (does not use Express)
 

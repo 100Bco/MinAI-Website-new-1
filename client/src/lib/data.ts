@@ -2,14 +2,14 @@ import {
   Globe, Inbox, Star, PhoneMissed, Phone,
   MousePointerClick, Search, MessageSquare
 } from "lucide-react";
-import websiteGif from "@assets/Website.gif";
-import inboxGif from "@assets/1inbox.gif";
-import starsGif from "@assets/5stars.gif";
-import missedCallGif from "@assets/Missed-call.gif";
-import businessPhoneGif from "@assets/27-Call.gif";
-import mktCampaignGif from "@assets/MKT Campaign.gif";
-import localSeoGif from "@assets/Local-seo.gif";
-import followLeadGif from "@assets/Follow-lead.gif";
+import websiteGif from "@assets/Website.webp";
+import inboxGif from "@assets/1inbox.webp";
+import starsGif from "@assets/5stars.webp";
+import missedCallGif from "@assets/Missed-call.webp";
+import businessPhoneGif from "@assets/27-Call.webp";
+import mktCampaignGif from "@assets/MKT Campaign.webp";
+import localSeoGif from "@assets/Local-seo.webp";
+import followLeadGif from "@assets/Follow-lead.webp";
 
 export interface ProductStat {
   label: string;
@@ -185,7 +185,7 @@ export const products: Product[] = [
     whatIs: {
       title: "What is missed call text back?",
       points: [
-        { title: "Stand out from competition", description: "Ackonwledge missed calls with instant, customized messages redirecting to your website." },
+        { title: "Stand out from competition", description: "Acknowledge missed calls with instant, customized messages redirecting to your website." },
         { title: "No More Lost Leads", description: "Prevent leads from moving to the next contractor by starting an instant conversation." },
         { title: "Show Customers You Care", description: "Show customers you're available and serious about their business." },
         { title: "Available 24/7", description: "Our system responds even after hours, ensuring every inquiry is addressed." }

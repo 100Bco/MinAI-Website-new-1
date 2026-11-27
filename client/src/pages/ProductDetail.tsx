@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
 import { AnimatedReveal } from "@/components/AnimatedReveal";
+import { VideoFacade } from "@/components/VideoFacade";
 import { products } from "@/lib/data";
 import { useModal } from "@/context/ModalContext";
 import { Check, ArrowLeft, ArrowRight, Star, Phone, MessageSquare } from "lucide-react";
@@ -11,7 +12,6 @@ export default function ProductDetail() {
   const { openDemoModal } = useModal();
 
   const product = products.find(p => p.slug === params?.slug);
-  useEffect(() => { document.title = product ? `${product.title} | MinAI` : "Product Not Found | MinAI"; }, [product]);
 
   if (!product) {
     return (
@@ -26,7 +26,7 @@ export default function ProductDetail() {
     <div className="relative bg-[#f8fafc] pt-12 overflow-hidden">
       {/* Product Title Banner */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10">
-        <AnimatedReveal>
+        <AnimatedReveal immediate>
           <h1 className="text-5xl md:text-7xl font-display font-extrabold text-slate-900 tracking-tight leading-[1.1]">
             {product.title}
           </h1>
@@ -56,18 +56,17 @@ export default function ProductDetail() {
               <AnimatedReveal direction="left" delay={0.2}>
                 <div className="bg-white p-4 md:p-6 rounded-[2rem] border border-black/5 shadow-xl shadow-black/[0.02]">
                   <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold text-slate-900">See a short demo below</h3>
+                    <h2 className="text-xl font-bold text-slate-900">See a short demo below</h2>
                     <div className="w-12 h-1 bg-blue-700/20 rounded-full mx-auto mt-2" />
                   </div>
 
                   <div className="aspect-video rounded-[1.5rem] bg-slate-900 overflow-hidden relative">
-                    <iframe
-                      src={`https://drive.google.com/file/d/${product.demoVideoId}/preview`}
-                      className="absolute inset-0 w-full h-full"
-                      allow="autoplay; encrypted-media"
-                      allowFullScreen
-                      title={`${product.title} Demo Video`}
-                    />
+                    <div className="absolute inset-0">
+                      <VideoFacade
+                        embedUrl={`https://drive.google.com/file/d/${product.demoVideoId}/preview?autoplay=1`}
+                        title={`${product.title} Demo Video`}
+                      />
+                    </div>
                   </div>
                 </div>
               </AnimatedReveal>
@@ -152,7 +151,7 @@ export default function ProductDetail() {
       )}
       {/* Back Link - Footer area */}
       <div className="bg-[#0f172a] pb-16 pt-8 text-center border-t border-white/5">
-        <Link href="/products" className="inline-flex items-center text-sm font-bold text-white/40 hover:text-white transition-colors group">
+        <Link href="/products" className="inline-flex items-center text-sm font-bold text-white/75 hover:text-white transition-colors group">
           <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" /> Back to Products
         </Link>
       </div>

@@ -7,6 +7,8 @@ interface AnimatedRevealProps {
   delay?: number;
   duration?: number;
   className?: string;
+  /** Above-the-fold content: animates with CSS so it paints from the prerendered HTML without waiting for JS. */
+  immediate?: boolean;
 }
 
 export function AnimatedReveal({
@@ -15,7 +17,16 @@ export function AnimatedReveal({
   delay = 0,
   duration = 0.6,
   className = "",
+  immediate = false,
 }: AnimatedRevealProps) {
+  if (immediate) {
+    return (
+      <div className={`hero-rise ${className}`} style={{ animationDelay: `${delay}s` }}>
+        {children}
+      </div>
+    );
+  }
+
   const getVariants = () => {
     switch (direction) {
       case "up":

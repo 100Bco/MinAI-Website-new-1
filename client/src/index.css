@@ -1,4 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Arial tuned to Inter's metrics so text doesn't jump when the web font arrives. */
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial"), local("Helvetica"), local("Liberation Sans");
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+  size-adjust: 107.12%;
+}
 
 @tailwind base;
 @tailwind components;
@@ -14,8 +23,8 @@
   --elevate-1: rgba(0, 0, 0, .03);
   --elevate-2: rgba(0, 0, 0, .08);
 
-  --font-sans: 'Inter', sans-serif;
-  --font-display: 'Inter', sans-serif;
+  --font-sans: 'Inter', 'Inter Fallback', sans-serif;
+  --font-display: 'Inter', 'Inter Fallback', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
 
@@ -210,4 +219,21 @@
 
 html {
   scroll-behavior: smooth;
+}
+@keyframes hero-rise {
+  from { opacity: 0.001; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+.hero-rise {
+  animation: hero-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -276,48 +276,17 @@ Everything in Essentials, PLUS:
 
 ---
 
-## Testimonials
-URL: https://minai.biz/testimonials
-
-**We Don't "Sell" You. Our Clients Do It For Us.**
-
-### Case Studies
-
-**John D., Roofing & Solar — SAVED $10K/MO IN MISSED CALLS**
-"I'm on a roof all day. I can't answer the phone. MinAI's text-back feature literally saved my business."
-
-**Sarah M., Property Development — SOLD 4 CONDOS IN 24 HOURS**
-"We had 500 leads sitting in an Excel sheet. We uploaded them, hit 'Send', and booked 40 showings the next day."
-
-**Mark T., Injury Law Partner — WE SIGN CASES INSTANTLY**
-"Speed to lead is everything. If we don't answer in 5 mins, they're gone. MinAI answers instantly."
-
-**David L., Real Estate Broker — REPLACED LAZY AGENTS**
-"The system chases the leads automatically until they answer. My stress is gone."
-
-**Jessica B., MedSpa Owner — CANCELLED SALESFORCE**
-"I was paying for 6 different software subscriptions. MinAI replaced all of them for a fraction of the price."
-
-**Mike R., HVAC Contractor — IT PAID FOR ITSELF IN 7 DAYS**
-"I tried MinAI because there was no contract. It paid for itself in the first week."
-
-### Real Texts. Real Revenue.
-- AI engaged a lead at 9:30 PM & booked it.
-- Client reacting to our Reactivation campaign.
-- Reviews jumping from 12 to 84 in one month.
-
----
-
-## Our Works
-URL: https://minai.biz/works
+## Industries
+URL: https://minai.biz/industries
 
 We build high-performance growth systems tailored to your industry.
 
-Industries served:
-- Local Service Contractors
-- Real Estate Developers
-- Agencies & Brokerages
-- Personal Injury Law Firms
+- Local Service Contractors (HVAC, Roofing, Plumbing, Solar): https://minai.biz/industries/local-service-contractors
+- Real Estate Developers (Condos, Subdivisions, Commercial): https://minai.biz/industries/real-estate-developers
+- Agencies & Brokerages (Real Estate, Mortgage, Insurance): https://minai.biz/industries/agencies-brokerages
+- Personal Injury Law Firms (MVA, Slip & Fall, Workers Comp): https://minai.biz/industries/personal-injury-law-firms
+
+Don't see your industry? The system works for any business that needs leads, follow-ups, and a reputation that sells.
 
 ---
 
@@ -341,4 +310,4 @@ We got tired of watching good businesses burn money. We spent years inside the m
 
 ## Contact
 
-Book a demo at: https://minai.biz (click "Book a Demo")
+Book a demo at: https://minai.biz/contact

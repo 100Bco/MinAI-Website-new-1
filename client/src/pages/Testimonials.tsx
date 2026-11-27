@@ -1,11 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { AnimatedReveal } from "@/components/AnimatedReveal";
 import { Play } from "lucide-react";
 import { useModal } from "@/context/ModalContext";
 
 export default function Testimonials() {
   const { openDemoModal } = useModal();
-  useEffect(() => { document.title = "Testimonials | MinAI"; }, []);
 
   const caseStudies = [
     { hook: "I'm on a roof all day. I can't answer the phone. MinAI's text-back feature literally saved my business.", author: "John D.", role: "Roofing & Solar", headline: "SAVED $10K/MO IN MISSED CALLS." },

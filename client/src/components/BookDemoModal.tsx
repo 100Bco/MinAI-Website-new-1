@@ -2,23 +2,21 @@ import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useModal } from "@/context/ModalContext";
+import { DemoForm } from "@/components/DemoForm";
 
 export function BookDemoModal() {
   const { isDemoModalOpen, closeDemoModal } = useModal();
 
   useEffect(() => {
-    if (isDemoModalOpen) {
-      document.body.style.overflow = "hidden";
-      const script = document.createElement("script");
-      script.src = "https://link.minai.biz/js/form_embed.js";
-      script.async = true;
-      document.body.appendChild(script);
-      return () => {
-        document.body.style.overflow = "";
-        document.body.removeChild(script);
-      };
-    }
-  }, [isDemoModalOpen]);
+    if (!isDemoModalOpen) return;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeDemoModal();
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isDemoModalOpen, closeDemoModal]);
 
   return (
     <AnimatePresence>
@@ -31,6 +29,9 @@ export function BookDemoModal() {
           onClick={closeDemoModal}
         >
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Book a demo"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -38,7 +39,6 @@ export function BookDemoModal() {
             className="bg-white rounded-3xl relative premium-shadow border border-black/5 w-full max-w-lg max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Decorative gradient top edge */}
             <div className="sticky top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-blue-400 to-primary opacity-80 z-10 rounded-t-3xl" />
 
             <button
@@ -50,23 +50,7 @@ export function BookDemoModal() {
             </button>
 
             <div className="px-2">
-              <iframe
-                src="https://link.minai.biz/widget/form/WpjN1Xac6B55HNTYUoCl"
-                style={{ width: "100%", height: "1058px", border: "none", borderRadius: "4px" }}
-                id="inline-WpjN1Xac6B55HNTYUoCl"
-                data-layout='{"id":"INLINE"}'
-                data-trigger-type="alwaysShow"
-                data-trigger-value=""
-                data-activation-type="alwaysActivated"
-                data-activation-value=""
-                data-deactivation-type="neverDeactivate"
-                data-deactivation-value=""
-                data-form-name="Website Registration"
-                data-height="1058"
-                data-layout-iframe-id="inline-WpjN1Xac6B55HNTYUoCl"
-                data-form-id="WpjN1Xac6B55HNTYUoCl"
-                title="Website Registration"
-              />
+              <DemoForm />
             </div>
           </motion.div>
         </motion.div>
