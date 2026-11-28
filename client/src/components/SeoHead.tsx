@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
-import { SITE, canonicalUrl, getPageMeta, notFoundMeta } from "@/lib/seo";
+import { canonicalUrl, getPageMeta, notFoundMeta, ogImageUrl } from "@/lib/seo";
 
 function setTag(selector: string, create: () => HTMLElement, attr: string, value: string) {
   let el = document.head.querySelector<HTMLElement>(selector);
@@ -24,7 +24,7 @@ export function SeoHead() {
     window.scrollTo(0, 0);
     const page = getPageMeta(location);
     const url = canonicalUrl(page);
-    const image = `${SITE.url}${page.image}`;
+    const image = ogImageUrl(page.image);
 
     document.title = page.title;
     setTag('meta[name="description"]', meta("name", "description"), "content", page.description);

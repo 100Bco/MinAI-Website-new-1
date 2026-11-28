@@ -30,6 +30,10 @@ export interface PageMeta {
   priority: number;
 }
 
+// Bump when the OG images change so chat apps and social networks fetch the new files.
+export const OG_VERSION = "2";
+export const ogImageUrl = (image: string) => `${SITE.url}${image}?v=${OG_VERSION}`;
+
 const abs = (path: string) => `${SITE.url}${path === "/" ? "/" : path}`;
 
 const ORG_ID = `${SITE.url}/#organization`;
@@ -342,7 +346,7 @@ const esc = (s: string) =>
 export function headTags(meta: PageMeta): string {
   const isNotFound = meta === notFoundMeta;
   const url = canonicalUrl(meta);
-  const image = `${SITE.url}${meta.image}`;
+  const image = ogImageUrl(meta.image);
   const tags = [
     `<title>${esc(meta.title)}</title>`,
     `<meta name="description" content="${esc(meta.description)}" />`,
